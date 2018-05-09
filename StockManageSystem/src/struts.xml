@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<package name="stockManageSystem" namespace="/stockManageSystem" extends="struts-default">
+		
+		<action name="goindex" class="action.IndexAction">
+			<result name="index">/pages/admin/index_1.jsp</result>
+		</action>
+		
+		<action name="login" class="action.LoginAction">
+			<result name="login">/pages/admin/index_1.jsp</result>
+			<result name="error">/pages/admin/index_1.jsp</result>
+			<result name="main" type="redirect">/pages/admin/main.jsp</result>
+			<result name="logOut" type="redirect">/pages/admin/index_1.jsp</result>
+		</action>
+		
+		
+		<action name="goodsType" class="action.GoodsTypeAction">	
+		</action>
+		
+		<action name="goods" class="action.GoodsAction">	
+		</action>
+		
+		<action name="import" class="action.ImportAction">	
+		</action>
+		
+		<action name="export" class="action.ExportAction">	
+		</action>
+		
+		<action name="stock" class="action.StockAction">	
+		</action>
+	</package>
+	
+	<package name="jfreechart" extends="jfreechart-default">
+		<action name="barChart" class="action.BarCharAction">
+			<result name="success" type="chart">
+			   <param name="value">chart</param>
+			   <param name="type">png</param>
+			   <param name="width">700</param>
+			   <param name="height">500</param>
+			 </result>
+		</action>
+	</package>
+</struts>
