@@ -5,6 +5,13 @@ public class GoodsType {
 	private int id;
 	private String typeName;
 	private String typeDesc;
+	private int wid;
+	public int getWid() {
+		return wid;
+	}
+	public void setWid(int wid) {
+		this.wid = wid;
+	}
 	public int getId() {
 		return id;
 	}

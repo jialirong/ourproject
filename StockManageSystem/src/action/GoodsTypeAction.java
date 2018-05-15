@@ -33,9 +33,18 @@ public class GoodsTypeAction extends ActionSupport {
 	private String page;
 	private String rows;
 	private String s_typeName;
+	private String s_wid;
+	public String getS_wid() {
+		return s_wid;
+	}
+	public void setS_wid(String s_wid) {
+		this.s_wid = s_wid;
+	}
+
+
 	private GoodsType goodsType;
 	private String delIds;
-	private String id;
+	private String gtid;
 	
 	public String getPage() {
 		return page;
@@ -67,25 +76,36 @@ public class GoodsTypeAction extends ActionSupport {
 	public void setDelIds(String delIds) {
 		this.delIds = delIds;
 	}
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
+
 	
+	public String getGtid() {
+		return gtid;
+	}
+	public void setGtid(String gtid) {
+		this.gtid = gtid;
+	}
+
+
 	DbUtil dbUtil = new DbUtil();
 	GoodsTypeDao goodsTypeDao = new GoodsTypeDao();
 	
 	@Override
 	public String execute() throws Exception {
+		System.out.println("excute.....................");
 		Connection con = null;
 		PageBean pageBean = new PageBean(Integer.parseInt(page),Integer.parseInt(rows));
 		try {
 			if(goodsType==null){
-				goodsType = new GoodsType();
+			goodsType = new GoodsType();
 			}
+			if(s_typeName!=null){
 			goodsType.setTypeName(s_typeName);
+			
+			}
+			if(s_wid!=null&&s_wid!=""){
+				goodsType.setWid(Integer.parseInt(s_wid));
+				System.out.println(s_wid);
+			}
 			con = dbUtil.getCon();
 			JSONObject result = new JSONObject();
 			JSONArray jsonArray = JsonUtil.formatRsToJsonArray(goodsTypeDao.goodsTypeList(con, pageBean, goodsType));
@@ -128,15 +148,15 @@ public class GoodsTypeAction extends ActionSupport {
 	}
 	
 	public String save() throws Exception{
-		if(StringUtil.isNotEmpty(id)){
-			goodsType.setId(Integer.parseInt(id));
+		if(StringUtil.isNotEmpty(gtid)){
+			goodsType.setId(Integer.parseInt(gtid));
 		}
 		Connection con = null;
 		try {
 			con = dbUtil.getCon();
 			int saveNums = 0;
 			JSONObject result = new JSONObject();
-			if(StringUtil.isNotEmpty(id)){
+			if(StringUtil.isNotEmpty(gtid)){
 				saveNums = goodsTypeDao.goodsTypeModify(con, goodsType);
 			}else{
 				saveNums = goodsTypeDao.goodsTypeSave(con,goodsType);				
@@ -168,7 +188,7 @@ public class GoodsTypeAction extends ActionSupport {
 			con=dbUtil.getCon();
 			JSONArray jsonArray=new JSONArray();
 			JSONObject jsonObject=new JSONObject();
-			jsonObject.put("id", "");
+			
 			jsonObject.put("typeName", "请选择...");
 			jsonArray.add(jsonObject);
 			jsonArray.addAll(JsonUtil.formatRsToJsonArray(goodsTypeDao.goodsTypeList(con, null,null)));
@@ -191,10 +211,10 @@ public class GoodsTypeAction extends ActionSupport {
 		try {
 			con=dbUtil.getCon();
 			Workbook wb=new HSSFWorkbook();
-			String headers[]={"编号","商品类别名称","商品类别描述"};
+			String headers[]={"编号","仓库编号","商品类别名称","商品类别描述"};
 			ResultSet rs=goodsTypeDao.goodsTypeList(con, null,null);
 			ExcelUtil.fillExcelData(rs, wb, headers);
-			ResponseUtil.export(ServletActionContext.getResponse(), wb, "导出excel.xls");
+			ResponseUtil.export(ServletActionContext.getResponse(), wb, "导出商品类型excel.xls");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

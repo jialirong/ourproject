@@ -14,7 +14,7 @@ import util.StringUtil;
 public class StockDao {
 
 	public ResultSet stockList(Connection con,PageBean pageBean,Goods goods,String s_bimpoPrice,String s_eimpoPrice,String s_bexpoPrice,String s_eexpoPrice) throws Exception{
-		StringBuffer sb = new StringBuffer("select * from t_goods t1, t_stock t2 where t1.id=t2.goodsId");
+		StringBuffer sb = new StringBuffer("select * from t_goods t1, t_stock t2 where t1.gid=t2.goodsId");
 		if(StringUtil.isNotEmpty(goods.getGoodsName())){
 			sb.append(" and t1.goodsName like '%"+goods.getGoodsName()+"%'");
 		}
@@ -39,7 +39,7 @@ public class StockDao {
 	}
 	
 	public int stockCount(Connection con,Goods goods,String s_bimpoPrice,String s_eimpoPrice,String s_bexpoPrice,String s_eexpoPrice) throws Exception{
-		StringBuffer sb = new StringBuffer("select count(*) as total from t_goods t1, t_stock t2 where t1.id=t2.goodsId");
+		StringBuffer sb = new StringBuffer("select count(*) as total from t_goods t1, t_stock t2 where t1.gid=t2.goodsId");
 		if(StringUtil.isNotEmpty(goods.getGoodsName())){
 			sb.append(" and t1.goodsName like '%"+goods.getGoodsName()+"%'");
 		}
@@ -65,7 +65,7 @@ public class StockDao {
 	}
 	
 	public int stockDelete(Connection con,String delIds) throws Exception{
-		String sql = "delete from t_stock where id in ("+delIds+")";
+		String sql = "delete from t_stock where sid in ("+delIds+")";
 		PreparedStatement pstmt=con.prepareStatement(sql);
 		return pstmt.executeUpdate();
 	}
@@ -82,7 +82,7 @@ public class StockDao {
 	}
 	
 	public int stockModify(Connection con ,Stock stock) throws Exception{
-		String sql = "update t_stock set goodsId=?,stockNum=?,impoPrice=?,expoPrice=?,stockDesc=? where id=?";
+		String sql = "update t_stock set goodsId=?,stockNum=?,impoPrice=?,expoPrice=?,stockDesc=? where sid=?";
 		PreparedStatement pstmt=con.prepareStatement(sql);
 		pstmt.setString(1,stock.getGoodsId());
 		pstmt.setString(2, stock.getStockNum());
@@ -92,7 +92,14 @@ public class StockDao {
 		pstmt.setInt(6, stock.getId());
 		return pstmt.executeUpdate();
 	}
-	
+	public int stockModify2(Connection con ,int sum,int goodsid,int num) throws Exception{
+		String sql = "update t_stock set stockNum=? where goodsId=?";
+		PreparedStatement pstmt=con.prepareStatement(sql);
+		
+		pstmt.setString(1, String.valueOf(sum-num));
+		pstmt.setInt(2,goodsid);
+		return pstmt.executeUpdate();
+	}
 	public boolean getGoodsByStockId(Connection con,String delIds) throws Exception{
 		String sql = "select * from t_stock where goodsId=?";
 		PreparedStatement pstmt=con.prepareStatement(sql);

@@ -8,14 +8,16 @@ import java.util.ArrayList;
 import model.Goods;
 import model.PageBean;
 import model.Stock;
+import util.DateUtil;
 import util.StringUtil;
 
 public class GoodsDao {
 
 	public ResultSet goodsList(Connection con,PageBean pageBean,Goods goods) throws Exception{
-		StringBuffer sb = new StringBuffer("SELECT * FROM t_goodsType t1,t_provider t2,t_goods t3 WHERE t3.proId=t2.id and t1.id=t3.typeId");
-		if(StringUtil.isNotEmpty(goods.getGoodsId())){
-			sb.append(" and t3.goodsId like '%"+goods.getGoodsId()+"%'");
+		StringBuffer sb = new StringBuffer("SELECT * FROM t_goodsType t1,t_provider t2,t_goods t3 WHERE t3.proId=t2.pid and t1.gtid=t3.typeId");
+		if(StringUtil.isNotEmpty(goods.getWid())){
+			System.out.println("@@@@@@@@@@@@@@@@@@@@@@22"+goods.getWid());
+			sb.append(" and t1.wid ='"+goods.getWid()+"'");
 		}
 		if(StringUtil.isNotEmpty(goods.getGoodsName())){
 			sb.append(" and t3.goodsName like '%"+goods.getGoodsName()+"%'");
@@ -26,7 +28,8 @@ public class GoodsDao {
 		if(StringUtil.isNotEmpty(goods.getTypeId())){
 			sb.append(" and t3.typeId='"+goods.getTypeId()+"'");
 		}
-		sb.append(" order by t3.id asc");
+		
+		sb.append(" order by t3.gid asc");
 		if(pageBean!=null){
 			sb.append(" limit "+pageBean.getStart()+","+pageBean.getRows());
 		}
@@ -36,15 +39,15 @@ public class GoodsDao {
 	}
 	
 	public ResultSet exportData(Connection con) throws Exception {
-		String sql = "SELECT goodsId,goodsName,proName,typeName,goodsDesc FROM t_goodsType t1,t_provider t2,t_goods t3 WHERE t3.proId=t2.id AND t1.id=t3.typeId";
+		String sql = "SELECT goodsId,goodsName,proName,typeName,goodsDesc,proData FROM t_goodsType t1,t_provider t2,t_goods t3 WHERE t3.proId=t2.pid AND t1.gtid=t3.typeId";
 		PreparedStatement pstmt = con.prepareStatement(sql);
 		return pstmt.executeQuery();
 	}
 	
 	public int goodsCount(Connection con,Goods goods) throws Exception{
-	StringBuffer sb = new StringBuffer("select count(*) as total from t_goodsType t1,t_provider t2,t_goods t3 WHERE t3.proId=t2.id and t1.id=t3.typeId");
-		if(StringUtil.isNotEmpty(goods.getGoodsId())){
-			sb.append(" and t3.goodsId like '%"+goods.getGoodsId()+"%'");
+	StringBuffer sb = new StringBuffer("select count(*) as total from t_goodsType t1,t_provider t2,t_goods t3 WHERE t3.proId=t2.pid and t1.gtid=t3.typeId");
+		if(StringUtil.isNotEmpty(goods.getWid())){
+			sb.append(" and t1.wid='"+goods.getWid()+"'");
 		}
 		if(StringUtil.isNotEmpty(goods.getGoodsName())){
 			sb.append(" and t3.goodsName like '%"+goods.getGoodsName()+"%'");
@@ -55,7 +58,7 @@ public class GoodsDao {
 		if(StringUtil.isNotEmpty(goods.getTypeId())){
 			sb.append(" and t3.typeId='"+goods.getTypeId()+"'");
 		}
-		sb.append(" order by t3.id asc");
+		sb.append(" order by t3.gid asc");
 		PreparedStatement pstmt=con.prepareStatement(sb.toString());
 		ResultSet rs=pstmt.executeQuery();
 		if(rs.next()){
@@ -66,32 +69,34 @@ public class GoodsDao {
 	}
 	
 	public int goodsDelete(Connection con,String delIds)throws Exception{
-		String sql="delete from t_goods where id in("+delIds+")";
+		String sql="delete from t_goods where gid in("+delIds+")";
 		PreparedStatement pstmt=con.prepareStatement(sql);
 		System.out.println(sql);
 		return pstmt.executeUpdate();
 	}
 	
 	public int goodsAdd(Connection con,Goods goods)throws Exception{
-		String sql="insert into t_goods values(null,?,?,?,?,?)";
+		String sql="insert into t_goods values(null,?,?,?,?,?,?)";
 		PreparedStatement pstmt=con.prepareStatement(sql);
 		pstmt.setString(1, goods.getGoodsId());
 		pstmt.setString(2, goods.getGoodsName());
 		pstmt.setString(3, goods.getProId());
 		pstmt.setString(4, goods.getTypeId());
 		pstmt.setString(5, goods.getGoodsDesc());
+		pstmt.setString(6, DateUtil.formatDate(goods.getProDate(), "yyyy-MM-dd"));
 		return pstmt.executeUpdate();
 	}
 
 	public int goodsModify(Connection con,Goods goods)throws Exception{
-		String sql="update t_goods set goodsId=?,goodsName=?,proId=?,typeId=?,goodsDesc=? where id=?";
+		String sql="update t_goods set goodsId=?,goodsName=?,proId=?,typeId=?,goodsDesc=?,proData=? where gid=?";
 		PreparedStatement pstmt=con.prepareStatement(sql);
 		pstmt.setString(1, goods.getGoodsId());
 		pstmt.setString(2, goods.getGoodsName());
 		pstmt.setString(3, goods.getProId());
 		pstmt.setString(4, goods.getTypeId());
 		pstmt.setString(5, goods.getGoodsDesc());
-		pstmt.setInt(6, goods.getId());
+		pstmt.setString(6, DateUtil.formatDate(goods.getProDate(), "yyyy-MM-dd"));
+		pstmt.setInt(7, goods.getGid());
 		return pstmt.executeUpdate();
 	}
 	
@@ -101,12 +106,13 @@ public class GoodsDao {
 		ResultSet rs=pstmt.executeQuery();
 		while(rs.next()){
 			Goods goods = new Goods();
-			goods.setId(rs.getInt("id"));
+			goods.setGid(rs.getInt("gid"));
 			goods.setGoodsId(rs.getString("goodsId"));
 			goods.setGoodsName(rs.getString("goodsName"));
 			goods.setProId(rs.getString("proId"));
 			goods.setTypeId(rs.getString("typeId"));
 			goods.setGoodsDesc(rs.getString("goodsDesc"));
+			goods.setProDate(rs.getDate("proData"));
 			goodsList.add(goods);
 		}
 		return goodsList;
@@ -119,7 +125,7 @@ public class GoodsDao {
 		ResultSet rs=pstmt.executeQuery();
 		Goods goods = new Goods();
 		while(rs.next()){
-			goods.setId(rs.getInt("id"));
+			goods.setGid(rs.getInt("gid"));
 			goods.setGoodsId(rs.getString("goodsId"));
 			goods.setGoodsName(rs.getString("goodsName"));
 			goods.setProId(rs.getString("proId"));

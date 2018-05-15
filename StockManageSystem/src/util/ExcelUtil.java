@@ -33,11 +33,14 @@ public class ExcelUtil {
 	public static Workbook fillExcelDataWithTemplate(ResultSet rs,String templateFileName)throws Exception{
 		InputStream inp=ExcelUtil.class.getResourceAsStream("/template/"+templateFileName);
 		POIFSFileSystem fs=new POIFSFileSystem(inp);
+		//Workbook工作簿对象对应一个Excel对象
 		Workbook wb=new HSSFWorkbook(fs);
 		Sheet sheet=wb.getSheetAt(0);
 		// 获取列数
 		int cellNums=sheet.getRow(0).getLastCellNum();
+		System.out.println(cellNums);
 		int rowIndex=1;
+		//rs获取到的第一行数据是数据表的字段名称，开始的时候指向-1所以要加一才可以读到
 		while(rs.next()){
 			Row row=sheet.createRow(rowIndex++);
 			for(int i=0;i<cellNums;i++){
@@ -48,6 +51,7 @@ public class ExcelUtil {
 	}
 	
 	public static String formatCell(HSSFCell hssfCell){
+		//判断每一列的数据类型由此返回对应的值
 		if(hssfCell==null){
 			return "";
 		}else{

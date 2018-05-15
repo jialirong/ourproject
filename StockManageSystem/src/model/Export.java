@@ -4,17 +4,38 @@ import java.util.Date;
 
 public class Export {
 
-	private int id;
+	private int eid;
 	private String goodsId;
 	private String expoPrice;
 	private Date expoDate;
 	private String expoNum;
 	private String expoDesc;
-	public int getId() {
-		return id;
+	private String serId;
+	private int brforeNum; 
+	private String whid;
+	public String getWhid() {
+		return whid;
 	}
-	public void setId(int id) {
-		this.id = id;
+	public void setWhid(String whid) {
+		this.whid = whid;
+	}
+	public int getBrforeNum() {
+		return brforeNum;
+	}
+	public void setBrforeNum(int brforeNum) {
+		this.brforeNum = brforeNum;
+	}
+	public String getSerId() {
+		return serId;
+	}
+	public void setSerId(String serId) {
+		this.serId = serId;
+	}
+	public int getEid() {
+		return eid;
+	}
+	public void setEid(int eid) {
+		this.eid = eid;
 	}
 	public String getGoodsId() {
 		return goodsId;

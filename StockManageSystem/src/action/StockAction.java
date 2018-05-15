@@ -31,7 +31,7 @@ public class StockAction extends ActionSupport{
 	private String s_bexpoPrice;
 	private String s_eexpoPrice;
 	private String delIds;
-	private String id;
+	private String sid;
 	private String s_goodsName;
 	
 	
@@ -42,11 +42,12 @@ public class StockAction extends ActionSupport{
 	public void setS_goodsName(String s_goodsName) {
 		this.s_goodsName = s_goodsName;
 	}
-	public String getId() {
-		return id;
+	
+	public String getSid() {
+		return sid;
 	}
-	public void setId(String id) {
-		this.id = id;
+	public void setSid(String sid) {
+		this.sid = sid;
 	}
 	public String getDelIds() {
 		return delIds;
@@ -168,15 +169,15 @@ public class StockAction extends ActionSupport{
 	}
 	
 	public String save()throws Exception{
-		if(StringUtil.isNotEmpty(id)){
-			stock.setId(Integer.parseInt(id));
+		if(StringUtil.isNotEmpty(sid)){
+			stock.setId(Integer.parseInt(sid));
 		}
 		Connection con=null;
 		try{
 			con=dbUtil.getCon();
 			int saveNums=0;
 			JSONObject result=new JSONObject();
-			if(StringUtil.isNotEmpty(id)){
+			if(StringUtil.isNotEmpty(sid)){
 				saveNums=stockDao.stockModify(con, stock);
 			}else{
 				saveNums=stockDao.stockSave(con, stock);

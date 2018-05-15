@@ -1,19 +1,51 @@
 package model;
 
+import java.util.Date;
+
 public class Goods {
 
-	private int id;
+	private int gid;
 	private String goodsId;
 	private String goodsName;
 	private String proId;
 	private String typeId;
+	private String wid;
+	public String getWid() {
+		return wid;
+	}
+	public void setWid(String wid) {
+		this.wid = wid;
+	}
 	private String goodsDesc;
-	public int getId() {
-		return id;
+	private int serviceId;
+	private int couId;
+	private Date proDate;
+	public Date getProDate() {
+		return proDate;
 	}
-	public void setId(int id) {
-		this.id = id;
+	public void setProDate(Date proDate) {
+		this.proDate = proDate;
 	}
+	public int getServiceId() {
+		return serviceId;
+	}
+	public void setServiceId(int serviceId) {
+		this.serviceId = serviceId;
+	}
+	public int getCouId() {
+		return couId;
+	}
+	public void setCouId(int couId) {
+		this.couId = couId;
+	}
+
+	public int getGid() {
+		return gid;
+	}
+	public void setGid(int gid) {
+		this.gid = gid;
+	}
+	
 	public String getGoodsId() {
 		return goodsId;
 	}

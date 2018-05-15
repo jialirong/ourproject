@@ -4,12 +4,19 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>库存管理系统</title>
+<title>仓库管理系统</title>
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/jquery-easyui-1.3.3/themes/default/easyui.css">
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/jquery-easyui-1.3.3/themes/icon.css">
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/jquery.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/locale/easyui-lang-zh_CN.js"></script>
+<%
+	Object obj = session.getAttribute("currentUser"); 
+		if(obj==null){
+			request.getRequestDispatcher("index_2.jsp").forward(request, response);
+	} 
+%>
+
 <script type="text/javascript">
 	var url;
 
@@ -21,6 +28,7 @@
 			s_eimpoPrice:$('#s_eimpoPrice').val(),
 			s_bimpoDate:$('#s_bimpoDate').datebox("getValue"),
 			s_eimpoDate:$('#s_eimpoDate').datebox("getValue"),
+			s_wid:$('#s_wid').combobox("getValue"),
 		});
 	}
 	
@@ -42,7 +50,7 @@
 		}
 		var strIds=[];
 		for(var i=0;i<selectedRows.length;i++){
-			strIds.push(selectedRows[i].id);
+			strIds.push(selectedRows[i].iid);
 		}
 		var ids = strIds.join(",");
 		$.messager.confirm("系统提示","您确认要删除这<font color=red>"+selectedRows.length+"</font>条数据吗?",function(r){
@@ -70,11 +78,14 @@
 	}
 	
 	function resetValue(){
-		$("#goodsId").combobox("setValue","");
+		$("#iid").combobox("setValue","");
 		$("#impoPrice").val("");
 		$("#impoDate").datebox("setValue","");
 		$("#impoNum").val("");
 		$("#impoDesc").val("");
+		$("#serviceId").combobox("setValue","");
+		$("#couId").combobox("setValue","");
+		//zcxvbnxcvb
 	}
 	
 	function saveImport(){
@@ -109,8 +120,11 @@
 		$("#impoPrice").val(row.impoPrice);
 		$("#impoDate").datebox("setValue",row.impoDate);
 		$("#impoNum").val(row.impoNum);
+		$("#userId").val(row.userId);
+		$("#whid").combobox("setValue",row.whid);
+		$("#name").val(row.name);
 		$("#impoDesc").val(row.impoDesc);
-		url="${pageContext.request.contextPath}/stockManageSystem/import!save?id="+row.id;
+		url="${pageContext.request.contextPath}/stockManageSystem/import!save?iid="+row.iid+"&beforeNum="+row.impoNum;
 	}
 	
 	function cleraValue(){
@@ -118,6 +132,7 @@
 		$("#s_eimpoPrice").val("");
 		$("#s_bimpoDate").datebox("setValue","");
 		$("#s_eimpoDate").datebox("setValue","");
+		$("#s_wid").combobox("setValue","");
 	}
 	
 	function exportData(){
@@ -154,13 +169,17 @@
 		<thead>
 			<tr>
 				<th field="cb" checkbox="true"></th>
-				<th field="id" width="20">编号</th>
+				<th field="iid" width="20">编号</th>  
 				<th field="goodsId" width="20" hidden="true">商品ID</th>
 				<th field="goodsName" width="30">商品名称</th>
 				<th field="impoPrice" width="30">入库价格</th>
+				<th field="serviceId" width="30">业务员编号</th>
+				<th field="name" width="30">货主名称</th>
+					<th field="wid" width="30">入库仓库编号</th>
 				<th field="impoDate" width="60">入库时间</th>
 				<th field="impoNum" width="60">入库数量</th>
 				<th field="impoDesc" width="100">入库备注</th>
+				
 			</tr>
 		</thead>
 	</table>
@@ -169,14 +188,14 @@
 		<div>
 			<a href="javascript:openImportAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
 			<a href="javascript:openImportModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
-			<a href="javascript:deleteImport()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+			 <a href="javascript:deleteImport()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
 			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="exportData()">导出数据</a>
 			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="openUploadFileDialog()">导入数据</a>
 		</div>
 		<div>
 		&nbsp;&nbsp;入库价格：&nbsp;<input type="text" name="s_bimpoPrice" id="s_bimpoPrice"  size="10"/>--<input type="text" name="s_eimpoPrice" id="s_eimpoPrice"  size="10"/>
 		&nbsp;入库时间：&nbsp;<input class="easyui-datebox" name="s_bimpoDate" id="s_bimpoDate" editable="false" size="10"/>-><input class="easyui-datebox" name="s_eimpoDate" id="s_eimpoDate" editable="false" size="10"/> 
-		
+		&nbsp;仓库类别：&nbsp;<input class="easyui-combobox" id="s_wid" name="s_wid" size="10" data-options="panelHeight:'auto',editable:false,valueField:'wid',textField:'wName',url:'${pageContext.request.contextPath}/stockManageSystem/warehouse!wareHouseComboList'"/>
 		&nbsp;&nbsp;&nbsp;<a href="javascript:searchImport1()" class="easyui-linkbutton" iconCls="icon-search" >搜索</a>
 		&nbsp;&nbsp;&nbsp;<a href="javascript:openChoiceGoodsDialog()" class="easyui-linkbutton" iconCls="icon-tip">选择商品</a>
 		<a href="javascript:cleraValue()" class="easyui-linkbutton" iconCls="icon-no" plain="true">清空</a>
@@ -190,11 +209,13 @@
 			<table cellspacing="5px;">
 				<tr>
 					<td>商品名称：</td>
-					<td><input class="easyui-combobox" id="goodsId" name="importGoods.goodsId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'id',textField:'goodsName',url:'${pageContext.request.contextPath}/stockManageSystem/goods!goodsComboList'"/></td>
+					<td><input class="easyui-combobox" id="goodsId" name="importGoods.goodsId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'gid',textField:'goodsName',url:'${pageContext.request.contextPath}/stockManageSystem/goods!goodsComboList'"/></td>
 					
 					<td>入库价格：</td>
 					<td><input type="text" name="importGoods.impoPrice" id="impoPrice" class="easyui-validatebox" required="true"/></td>
 				</tr>
+				
+				
 				<tr>
 					<td>入库日期：</td>
 					<td><input class="easyui-datebox" name="importGoods.impoDate" id="impoDate" editable="false" size="15" required="true"/>
@@ -202,7 +223,31 @@
 					<td>入库数量：</td>
 					<td><input  name="importGoods.impoNum" id="impoNum" class="easyui-validatebox" required="true" /></td>
 				</tr>
+				
 				<tr>
+				<td>业务员编号：</td>
+					  <td><input class="easyui-combobox" name="importGoods.serviceId" id="serviceId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'uid',textField:'uid',url:'${pageContext.request.contextPath}/stockManageSystem/import!importServiceComboList'"/></td>
+				<td>货主编号：</td>
+					 <td><input name="importGoods.couId" id="couId"  class="easyui-combobox" size="10" data-options="panelHeight:'auto',editable:false,valueField:'cid',textField:'cid',url:'${pageContext.request.contextPath}/stockManageSystem/import!importCouComboList'"/></td> 
+				</tr>
+				
+				<!--  <tr>
+					<td>供应商编号：</td>
+					  <td><input class="easyui-combobox" name="importGoods.proId" id="proId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'ppid',textField:'pid',url:'${pageContext.request.contextPath}/stockManageSystem/import!ProviderComboList'"  /></td>
+					  
+					  	<td>商品类型编号：</td>
+					  <td><input class="easyui-combobox" name="importGoods.tpId" id="tpId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'tpyid',textField:'gtid',url:'${pageContext.request.contextPath}/stockManageSystem/import!importGoodTypeComboList'"  /></td>
+				</tr>
+				<tr>
+				<td>商品名称：</td>
+					<td><input class="easyui-combobox" id="goodsId" name="importGoods.goodsId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'id',textField:'goodsName',url:'${pageContext.request.contextPath}/stockManageSystem/goods!goodsComboList'"/></td>
+				
+				</tr>-->
+				<tr>
+				
+					<td>仓库名称：</td>
+					<td><input type="text" name="importGoods.whid" id="whid" class="easyui-combobox" size="10" required="true" data-options="panelHeight:'auto',editable:false,valueField:'wid',textField:'wName',url:'${pageContext.request.contextPath}/stockManageSystem/warehouse!wareHouseComboList'"/></td>
+				
 					<td valign="top">入库备注：</td>
 					<td colspan="3"><textarea rows="7" cols="43" name="importGoods.impoDesc" id="impoDesc"></textarea></td>
 				</tr>
@@ -236,8 +281,11 @@
 										<th field="goodsName" width="70">商品名称</th>
 										<th field="impoPrice" width="70">入库价格</th>
 										<th field="impoDate" width="70">入库时间</th>
+										<th field="serviceId" width="70">业务员编号</th>
+										<th field="name" width="70">货主名称</th>
 										<th field="impoNum" width="70">入库数量</th>
 										<th field="impoDesc" width="100">入库备注</th>
+										
 									</tr>
 								</thead>
 	 							

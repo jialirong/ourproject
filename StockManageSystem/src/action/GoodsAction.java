@@ -36,15 +36,16 @@ public class GoodsAction extends ActionSupport {
 	private String page;
 	private String rows;
 	private Goods goods;
-	private String s_goodsId;
+	private String s_wid;
 	private String s_goodsName;
 	private String s_proId;
 	private String s_typeId;
 	private String delIds;
-	private String id;
-	
+	private String gid;
+
 	private File userUploadFile;
 	
+
 	public File getUserUploadFile() {
 		return userUploadFile;
 	}
@@ -71,13 +72,11 @@ public class GoodsAction extends ActionSupport {
 		this.goods = goods;
 	}
 	
-	
-
-	public String getS_goodsId() {
-		return s_goodsId;
+	public String getS_wid() {
+		return s_wid;
 	}
-	public void setS_goodsId(String s_goodsId) {
-		this.s_goodsId = s_goodsId;
+	public void setS_wid(String s_wid) {
+		this.s_wid = s_wid;
 	}
 	public String getS_goodsName() {
 		return s_goodsName;
@@ -107,12 +106,14 @@ public class GoodsAction extends ActionSupport {
 		this.delIds = delIds;
 	}
 	
-	public String getId() {
-		return id;
+	
+	public String getGid() {
+		return gid;
 	}
-	public void setId(String id) {
-		this.id = id;
+	public void setGid(String gid) {
+		this.gid = gid;
 	}
+
 
 	DbUtil dbUtil = new DbUtil();
 	GoodsDao goodsDao = new GoodsDao();
@@ -126,12 +127,22 @@ public class GoodsAction extends ActionSupport {
 		PageBean pageBean = new PageBean(Integer.parseInt(page),Integer.parseInt(rows));
 		try {
 			goods = new Goods();
-			if(s_goodsId!=null){
-				goods.setGoodsId(s_goodsId);
+			if(s_wid!=null){
+				goods.setWid(s_wid);
+				System.out.println("~~~~~~~~~~~~~~"+s_wid);
+			}
+			if(s_goodsName!=null){
 				goods.setGoodsName(s_goodsName);
+				
+			}
+			if(s_proId!=null){
 				goods.setProId(s_proId);
+				
+			}
+			if(s_typeId!=null){
 				goods.setTypeId(s_typeId);
 			}
+			System.out.println("~~~~~~~~~~~`");
 			con = dbUtil.getCon();
 			JSONObject result = new JSONObject();
 			JSONArray jsonArray = JsonUtil.formatRsToJsonArray(goodsDao.goodsList(con, pageBean,goods));
@@ -193,15 +204,15 @@ public class GoodsAction extends ActionSupport {
 	}
 	
 	public String save()throws Exception{
-		if(StringUtil.isNotEmpty(id)){
-			goods.setId(Integer.parseInt(id));
+		if(StringUtil.isNotEmpty(gid)){
+			goods.setGid(Integer.parseInt(gid));
 		}
 		Connection con=null;
 		try{
 			con=dbUtil.getCon();
 			int saveNums=0;
 			JSONObject result=new JSONObject();
-			if(StringUtil.isNotEmpty(id)){
+			if(StringUtil.isNotEmpty(gid)){
 				saveNums=goodsDao.goodsModify(con, goods);
 			}else{
 				saveNums=goodsDao.goodsAdd(con, goods);
@@ -209,7 +220,7 @@ public class GoodsAction extends ActionSupport {
 			if(saveNums>0){
 				result.put("success", "true");
 			}else{
-				result.put("success", "true");
+			
 				result.put("errorMsg", "保存失败");
 			}
 			ResponseUtil.write(ServletActionContext.getResponse(), result);
@@ -233,10 +244,11 @@ public class GoodsAction extends ActionSupport {
 			con=dbUtil.getCon();
 			JSONArray jsonArray=new JSONArray();
 			JSONObject jsonObject=new JSONObject();
-			jsonObject.put("id", "");
-			jsonObject.put("goodsName", "请选择...");
+//			jsonObject.put("goodsId", "");
+			jsonObject.put("ggid", "请选择...");
 			jsonArray.add(jsonObject);
 			jsonArray.addAll(JsonUtil.formatRsToJsonArray(goodsDao.goodsList(con, null,goods)));
+			System.out.println(jsonArray.toString());
 			ResponseUtil.write(ServletActionContext.getResponse(), jsonArray);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -269,13 +281,14 @@ public class GoodsAction extends ActionSupport {
 		HSSFWorkbook wb=new HSSFWorkbook(fs);
 		HSSFSheet hssfSheet=wb.getSheetAt(0);  // 获取第一个Sheet页
 		if(hssfSheet!=null){
+			//得到每一行用hssfRow表示
 			for(int rowNum=1;rowNum<=hssfSheet.getLastRowNum();rowNum++){
 				HSSFRow hssfRow=hssfSheet.getRow(rowNum);
 				if(hssfRow==null){
 					continue;
 				}
 				Goods goods = new Goods();
-				
+				//分别得到每一行的每一列
 				goods.setGoodsId(ExcelUtil.formatCell(hssfRow.getCell(0)));
 				goods.setGoodsName(ExcelUtil.formatCell(hssfRow.getCell(1)));
 				goods.setProId(ExcelUtil.formatCell(hssfRow.getCell(2)));

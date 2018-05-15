@@ -4,12 +4,19 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>库存管理系统</title>
+<title>仓库管理系统</title>
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/jquery-easyui-1.3.3/themes/default/easyui.css">
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/jquery-easyui-1.3.3/themes/icon.css">
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/jquery.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/locale/easyui-lang-zh_CN.js"></script>
+<%
+	Object obj = session.getAttribute("currentUser"); 
+		if(obj==null){
+			request.getRequestDispatcher("index_2.jsp").forward(request, response);
+	} 
+%>
+
 <script type="text/javascript">
 	var url;
 	
@@ -46,7 +53,7 @@
 		}
 		var strIds=[];
 		for(var i=0;i<selectedRows.length;i++){
-			strIds.push(selectedRows[i].id);
+			strIds.push(selectedRows[i].sid);
 		}
 		var ids = strIds.join(",");
 		$.messager.confirm("系统提示","您确认要删除这<font color=red>"+selectedRows.length+"</font>条数据吗?",function(r){
@@ -116,7 +123,7 @@
 		$("#impoPrice").val(row.impoPrice);
 		$("#expoPrice").val(row.expoPrice);
 		$("#stockDesc").val(row.stockDesc);
-		url="${pageContext.request.contextPath}/stockManageSystem/stock!save?id="+row.id;
+		url="${pageContext.request.contextPath}/stockManageSystem/stock!save?sid="+row.sid;
 	}
 	
 	function cleraValue(){
@@ -128,12 +135,12 @@
 </script>
 </head>
 <body style="margin: 5px;">
-	<table style="height:423px; width:1160px" id="dg1" title="库存管理" class="easyui-datagrid" fitColumns="true"
+	<table style="height:423px; width:1160px" id="dg1" title="仓库管理系统" class="easyui-datagrid" fitColumns="true"
 	 pagination="true" rownumbers="true" url="${pageContext.request.contextPath}/stockManageSystem/stock" toolbar="#tb">
 		<thead>
 			<tr>
 				<th field="cb" checkbox="true"></th>
-				<th field="id" width="15">编号</th>
+				<th field="sid" width="15">编号</th>
 				<th field="goodsId" width="15" hidden="true">商品编号</th>
 				<th field="goodsName" width="15">商品名称</th>
 				<th field="stockNum" width="25">商品库存数量</th>
@@ -168,7 +175,7 @@
 			<table cellspacing="5px;">
 				<tr>
 					<td>商品名称：</td>
-					<td><input class="easyui-combobox" id="goodsId" name="stock.goodsId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'id',textField:'goodsName',url:'${pageContext.request.contextPath}/stockManageSystem/goods!goodsComboList'"/></td>
+					<td><input class="easyui-combobox" id="goodsId" name="stock.goodsId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'gid',textField:'goodsName',url:'${pageContext.request.contextPath}/stockManageSystem/goods!goodsComboList'"/></td>
 					
 					<td>库存数量：</td>
 					<td><input type="text" name="stock.stockNum" id="stockNum" class="easyui-validatebox" required="true"/></td>

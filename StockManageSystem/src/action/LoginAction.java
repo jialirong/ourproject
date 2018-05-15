@@ -64,25 +64,39 @@ public class LoginAction extends ActionSupport implements ServletRequestAware {
 	
 	public String login() throws Exception{
 		HttpSession session=request.getSession();
-		
+		System.out.println("#####################3");
 		if(StringUtil.isEmpty(user.getUserName()) || StringUtil.isEmpty(user.getPassword())) {
 			error = "用户名或密码为空!";
+			request.setAttribute("error", error);
+
+			return ERROR;
+		}
+		if(user.getUserName().contains("' and 1='1")||user.getUserName().contains("=")||user.getUserName().contains("' or 1='1")){
+			error = "用户不存在!";
+			request.setAttribute("error", error);
+
 			return ERROR;
 		}
 		if(StringUtil.isEmpty(imageCode)) {
 			error = "验证码为空!";
+			request.setAttribute("error", error);
+
 			return ERROR;
 		}
 		if(!imageCode.equals(session.getAttribute("sRand"))){
 			error = "验证码错误！";
+			request.setAttribute("error", error);
+
 			return ERROR;
 		}
 		Connection con = null;
 		try {
+			System.out.println(user.getUserName());
 			con=dbUtil.getCon();
 			User currentUser = userDao.login(con, user);
 			if(currentUser!=null){
-				session.setAttribute("currentUser", currentUser);
+				session.setAttribute("currentUser", user);
+				session.setAttribute("role", currentUser.getId());
 				return "main";
 			}else{
 				request.setAttribute("error", "用户名或密码错误！");
@@ -105,7 +119,8 @@ public class LoginAction extends ActionSupport implements ServletRequestAware {
 	public String logOut() throws Exception {
 		HttpSession session = request.getSession();
 		session.removeAttribute("currentUser");
-		return "logOut";
+		session.invalidate();
+		return "logout";
 	}
 
 

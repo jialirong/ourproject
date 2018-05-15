@@ -15,9 +15,15 @@ public class GoodsTypeDao {
 		if(goodsType!=null && StringUtil.isNotEmpty(goodsType.getTypeName())){
 			sb.append(" and typeName like '%"+goodsType.getTypeName()+"%'");
 		}
+		
+		if(goodsType!=null && StringUtil.isNotEmpty(String.valueOf(goodsType.getWid()))&&goodsType.getWid()!=0){
+			sb.append(" and wid = '"+goodsType.getWid()+"'");
+			System.out.println(goodsType.getWid()+"goodsType.getWid().....................");
+		}
 		if(pageBean!=null){
 			sb.append(" limit "+pageBean.getStart()+","+pageBean.getRows());
 		}
+		System.out.println(sb);
 		PreparedStatement pstmt = con.prepareStatement(sb.toString().replaceFirst("and", "where"));
 		return pstmt.executeQuery();
 	}
@@ -37,24 +43,26 @@ public class GoodsTypeDao {
 	}
 	
 	public int goodsTypeDelete(Connection con,String delIds) throws Exception{
-		String sql = "delete from t_goodsType where id in ("+delIds+")";
+		String sql = "delete from t_goodsType where gtid in ("+delIds+")";
 		PreparedStatement pstmt=con.prepareStatement(sql);
 		return pstmt.executeUpdate();
 	}
 	
 	public int goodsTypeSave(Connection con,GoodsType goodsType) throws Exception{
-		String sql = "insert t_goodsType value(null,?,?)";
+		String sql = "insert t_goodsType value(null,?,?,?)";
 		PreparedStatement pstmt=con.prepareStatement(sql);
 		pstmt.setString(1,goodsType.getTypeName());
 		pstmt.setString(2, goodsType.getTypeDesc());
+		pstmt.setInt(3, goodsType.getWid());
 		return pstmt.executeUpdate();
 	}
 	public int goodsTypeModify(Connection con ,GoodsType goodsType) throws Exception{
-		String sql = "update t_goodsType set id=?,typeName=?,typeDesc=? where id=?";
+		String sql = "update t_goodsType set typeName=?,typeDesc=?,wid=? where gtid=?";
 		PreparedStatement pstmt=con.prepareStatement(sql);
-		pstmt.setInt(1,goodsType.getId());
-		pstmt.setString(2, goodsType.getTypeName());
-		pstmt.setString(3, goodsType.getTypeDesc());
+		
+		pstmt.setString(1, goodsType.getTypeName());
+		pstmt.setString(2, goodsType.getTypeDesc());
+		pstmt.setInt(3, goodsType.getWid());
 		pstmt.setInt(4, goodsType.getId());
 		return pstmt.executeUpdate();
 	}

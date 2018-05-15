@@ -31,14 +31,37 @@ public class ExportAction extends ActionSupport{
 	private Export exportGoods;
 	private Goods goods;
 	private String s_goodsId;
+	private String s_wid;
+	private String whid;
+	public String getWhid() {
+		return whid;
+	}
+	public void setWhid(String whid) {
+		this.whid = whid;
+	}
+	public String getS_wid() {
+		return s_wid;
+	}
+	public void setS_wid(String s_wid) {
+		this.s_wid = s_wid;
+	}
+
+
 	private String s_bexpoPrice;
 	private String s_eexpoPrice;
 	private String s_bexpoDate;
 	private String s_eexpoDate;
 	private String s_goodsName;
 	private String delIds;
-	private String id;
+	private String eid;
+	private String brforeNum;
 	
+	public String getBrforeNum() {
+		return brforeNum;
+	}
+	public void setBrforeNum(String brforeNum) {
+		this.brforeNum = brforeNum;
+	}
 	public String getPage() {
 		return page;
 	}
@@ -105,11 +128,13 @@ public class ExportAction extends ActionSupport{
 	public void setDelIds(String delIds) {
 		this.delIds = delIds;
 	}
-	public String getId() {
-		return id;
+
+
+	public String getEid() {
+		return eid;
 	}
-	public void setId(String id) {
-		this.id = id;
+	public void setEid(String eid) {
+		this.eid = eid;
 	}
 
 
@@ -130,11 +155,12 @@ public class ExportAction extends ActionSupport{
 			if(s_goodsName!=null){
 				goods.setGoodsName(s_goodsName);
 			}
-			
-			
+			System.out.println("####################");
+			System.out.println( s_bexpoDate+".............1..........");
+			System.out.println( s_eexpoDate+" ..........2.............");
 			con = dbUtil.getCon();
 			JSONObject result = new JSONObject();
-			JSONArray jsonArray = JsonUtil.formatRsToJsonArray(exportDao.exportList(con, pageBean,goods,exportGoods,s_bexpoPrice,s_eexpoPrice,s_bexpoDate,s_eexpoDate));
+			JSONArray jsonArray = JsonUtil.formatRsToJsonArray(exportDao.exportList(con, pageBean,goods,exportGoods,s_bexpoPrice,s_eexpoPrice,s_bexpoDate,s_eexpoDate,s_wid));
 			int total = exportDao.exportCount(con,goods,exportGoods,s_bexpoPrice,s_eexpoPrice,s_bexpoDate,s_eexpoDate);
 			result.put("rows", jsonArray);
 			result.put("total", total);
@@ -174,25 +200,38 @@ public class ExportAction extends ActionSupport{
 	}
 	
 	public String save() throws Exception{
-		if(StringUtil.isNotEmpty(id)){
-			exportGoods.setId(Integer.parseInt(id));
+		if(StringUtil.isNotEmpty(eid)){
+			
+			exportGoods.setEid(Integer.parseInt(eid));
+		}
+		System.out.println("...................."+brforeNum);
+		if(StringUtil.isNotEmpty(brforeNum)){
+			exportGoods.setBrforeNum(Integer.parseInt(brforeNum));
 		}
 		Connection con = null;
 		try {
 			con = dbUtil.getCon();
 			int saveNums = 0;
 			JSONObject result = new JSONObject();
-			if(StringUtil.isNotEmpty(id)){
+			if(StringUtil.isNotEmpty(eid)){
 				saveNums = exportDao.exportModify(con, exportGoods);
+				System.out.println("#########################"+saveNums);
+
 			}else{
-				saveNums = exportDao.exportSave(con,exportGoods);				
+				saveNums = exportDao.exportSave(con,exportGoods);	
 			}
+			
+			
 			if(saveNums>0){
 				result.put("success", "true");
-			}else{
-				result.put("success", "true");
+			}
+			else {
+//				result.put("success", "true");
+//				System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`");
 				result.put("errorMsg", "±£¥Ê ß∞‹");
 			}
+			
+			
 			ResponseUtil.write(ServletActionContext.getResponse(), result);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
