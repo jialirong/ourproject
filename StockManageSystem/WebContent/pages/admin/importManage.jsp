@@ -11,9 +11,9 @@
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/locale/easyui-lang-zh_CN.js"></script>
 <%
-	Object obj = session.getAttribute("currentUser"); 
+	Object obj = session.getAttribute("username"); 
 		if(obj==null){
-			request.getRequestDispatcher("index_2.jsp").forward(request, response);
+			request.getRequestDispatcher("index_1.jsp").forward(request, response);
 	} 
 %>
 
@@ -22,8 +22,7 @@
 
 	function searchImport1(){
 		$('#dg1').datagrid('load',{
-			s_goodsId:$('#s_goodsId').val(),
-			//s_goodsName:$('#s_goodsName').val(),
+			
 			s_bimpoPrice:$('#s_bimpoPrice').val(),
 			s_eimpoPrice:$('#s_eimpoPrice').val(),
 			s_bimpoDate:$('#s_bimpoDate').datebox("getValue"),
@@ -120,9 +119,9 @@
 		$("#impoPrice").val(row.impoPrice);
 		$("#impoDate").datebox("setValue",row.impoDate);
 		$("#impoNum").val(row.impoNum);
-		$("#userId").val(row.userId);
-		$("#whid").combobox("setValue",row.whid);
-		$("#name").val(row.name);
+		$("#serviceId").combobox("setValue",row.serviceId);
+		$("#whid").combobox("setValue",row.wid);
+		$("#couId").combobox("setValue",row.name);
 		$("#impoDesc").val(row.impoDesc);
 		url="${pageContext.request.contextPath}/stockManageSystem/import!save?iid="+row.iid+"&beforeNum="+row.impoNum;
 	}
@@ -139,28 +138,13 @@
 		window.open('${pageContext.request.contextPath}/stockManageSystem/import!export')
 	}
 	
-	function openUploadFileDialog(){
-		$("#dlg3").dialog('open').dialog('setTitle','批量导入数据');
-	}
+
 	
 	function downloadTemplate(){
 		window.open('${pageContext.request.contextPath}/template/importTemp.xls');
 	}
 	
-	function uploadFile(){
-		$("#uploadForm").form("submit",{
-			success:function(result){
-				var result=eval('('+result+')');
-				if(result.errorMsg){
-					$.messager.alert("系统提示",result.errorMsg);
-				}else{
-					$.messager.alert("系统提示","上传成功");
-					$("#dlg3").dialog("close");
-					$("#dg").datagrid("reload");
-				}
-			}
-		});
-	}
+
 </script>
 </head>
 <body style="margin: 5px;">
@@ -190,14 +174,12 @@
 			<a href="javascript:openImportModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
 			 <a href="javascript:deleteImport()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
 			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="exportData()">导出数据</a>
-			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="openUploadFileDialog()">导入数据</a>
 		</div>
 		<div>
 		&nbsp;&nbsp;入库价格：&nbsp;<input type="text" name="s_bimpoPrice" id="s_bimpoPrice"  size="10"/>--<input type="text" name="s_eimpoPrice" id="s_eimpoPrice"  size="10"/>
 		&nbsp;入库时间：&nbsp;<input class="easyui-datebox" name="s_bimpoDate" id="s_bimpoDate" editable="false" size="10"/>-><input class="easyui-datebox" name="s_eimpoDate" id="s_eimpoDate" editable="false" size="10"/> 
 		&nbsp;仓库类别：&nbsp;<input class="easyui-combobox" id="s_wid" name="s_wid" size="10" data-options="panelHeight:'auto',editable:false,valueField:'wid',textField:'wName',url:'${pageContext.request.contextPath}/stockManageSystem/warehouse!wareHouseComboList'"/>
 		&nbsp;&nbsp;&nbsp;<a href="javascript:searchImport1()" class="easyui-linkbutton" iconCls="icon-search" >搜索</a>
-		&nbsp;&nbsp;&nbsp;<a href="javascript:openChoiceGoodsDialog()" class="easyui-linkbutton" iconCls="icon-tip">选择商品</a>
 		<a href="javascript:cleraValue()" class="easyui-linkbutton" iconCls="icon-no" plain="true">清空</a>
 		</div>
 		
@@ -227,22 +209,11 @@
 				<tr>
 				<td>业务员编号：</td>
 					  <td><input class="easyui-combobox" name="importGoods.serviceId" id="serviceId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'uid',textField:'uid',url:'${pageContext.request.contextPath}/stockManageSystem/import!importServiceComboList'"/></td>
-				<td>货主编号：</td>
-					 <td><input name="importGoods.couId" id="couId"  class="easyui-combobox" size="10" data-options="panelHeight:'auto',editable:false,valueField:'cid',textField:'cid',url:'${pageContext.request.contextPath}/stockManageSystem/import!importCouComboList'"/></td> 
+				<td>货主名称：</td>
+					 <td><input name="importGoods.couId" id="couId"  class="easyui-combobox" size="10" data-options="panelHeight:'auto',editable:false,valueField:'cid',textField:'name',url:'${pageContext.request.contextPath}/stockManageSystem/import!importCouComboList'"/></td> 
 				</tr>
 				
-				<!--  <tr>
-					<td>供应商编号：</td>
-					  <td><input class="easyui-combobox" name="importGoods.proId" id="proId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'ppid',textField:'pid',url:'${pageContext.request.contextPath}/stockManageSystem/import!ProviderComboList'"  /></td>
-					  
-					  	<td>商品类型编号：</td>
-					  <td><input class="easyui-combobox" name="importGoods.tpId" id="tpId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'tpyid',textField:'gtid',url:'${pageContext.request.contextPath}/stockManageSystem/import!importGoodTypeComboList'"  /></td>
-				</tr>
-				<tr>
-				<td>商品名称：</td>
-					<td><input class="easyui-combobox" id="goodsId" name="importGoods.goodsId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'id',textField:'goodsName',url:'${pageContext.request.contextPath}/stockManageSystem/goods!goodsComboList'"/></td>
-				
-				</tr>-->
+			
 				<tr>
 				
 					<td>仓库名称：</td>
@@ -260,60 +231,5 @@
 		<a href="javascript:closeImportDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
 	</div>
 	
-	<!-- 选择商品 -->
-	<div id="dlg2" class="easyui-dialog" style="width: 600px;height: 350px;padding: 10px 20px"
-		closed="true">
-		
-			<table cellspacing="5px;">
-				<tr>
-					<td>&nbsp;&nbsp;&nbsp;&nbsp;商品名称：</td>
-					<td><input type="text" size="15" name="s_goodsName" id="s_goodsName" class="easyui-validatebox" /></td>
-					<td><a href="javascript:searchImport2()" class="easyui-linkbutton" iconCls="icon-search">搜索</a></td>
-				</tr>
-				<tr>
-					<td colspan="3">
-						<table style="height:250px; width:540px" id="dg2" title="商品选择" class="easyui-datagrid" fitColumns="true"
-	 							pagination="true" rownumbers="true" url="${pageContext.request.contextPath}/stockManageSystem/import">
-	 							<thead>
-									<tr>
-										<th field="id" width="12" hidden="true">编号</th>
-										<th field="goodsId" width="10" hidden="true">商品编号</th>
-										<th field="goodsName" width="70">商品名称</th>
-										<th field="impoPrice" width="70">入库价格</th>
-										<th field="impoDate" width="70">入库时间</th>
-										<th field="serviceId" width="70">业务员编号</th>
-										<th field="name" width="70">货主名称</th>
-										<th field="impoNum" width="70">入库数量</th>
-										<th field="impoDesc" width="100">入库备注</th>
-										
-									</tr>
-								</thead>
-	 							
-	 					</table>
-					</td>
-				</tr>
-			</table>
-	</div>
-	
-	<div id="dlg3" class="easyui-dialog" style="width:400px;height:180px;padding:10px 20px"
-            closed="true" buttons="#dlg-buttons3">
-        <form id="uploadForm" action="${pageContext.request.contextPath}/stockManageSystem/import!upload" method="post" enctype="multipart/form-data">
-        	<table>
-        		<tr>
-        			<td>下载模版：</td>
-        			<td><a href="javascript:void(0)" class="easyui-linkbutton"  onclick="downloadTemplate()">导入模版</a></td>
-        		</tr>
-        		<tr>
-        			<td>上传文件：</td>
-        			<td><input type="file" name="userUploadFile"></td>
-        		</tr>
-        	</table>
-        </form>
-	</div>
-    
-	<div id="dlg-buttons3">
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="uploadFile()">上传</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg3').dialog('close')">关闭</a>
-	</div>
 </body>
 </html>

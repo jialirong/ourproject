@@ -15,17 +15,16 @@ public class GoodsDao {
 
 	public ResultSet goodsList(Connection con,PageBean pageBean,Goods goods) throws Exception{
 		StringBuffer sb = new StringBuffer("SELECT * FROM t_goodsType t1,t_provider t2,t_goods t3 WHERE t3.proId=t2.pid and t1.gtid=t3.typeId");
-		if(StringUtil.isNotEmpty(goods.getWid())){
-			System.out.println("@@@@@@@@@@@@@@@@@@@@@@22"+goods.getWid());
+		if(goods!=null&&StringUtil.isNotEmpty(goods.getWid())){
 			sb.append(" and t1.wid ='"+goods.getWid()+"'");
 		}
-		if(StringUtil.isNotEmpty(goods.getGoodsName())){
+		if(goods!=null&&StringUtil.isNotEmpty(goods.getGoodsName())){
 			sb.append(" and t3.goodsName like '%"+goods.getGoodsName()+"%'");
 		}
-		if(StringUtil.isNotEmpty(goods.getProId())){
+		if(goods!=null&&StringUtil.isNotEmpty(goods.getProId())){
 			sb.append(" and t3.proId='"+goods.getProId()+"'");
 		}
-		if(StringUtil.isNotEmpty(goods.getTypeId())){
+		if(goods!=null&&StringUtil.isNotEmpty(goods.getTypeId())){
 			sb.append(" and t3.typeId='"+goods.getTypeId()+"'");
 		}
 		
@@ -100,38 +99,5 @@ public class GoodsDao {
 		return pstmt.executeUpdate();
 	}
 	
-	public ArrayList<Goods> goodsArrayList(Connection con,String sql) throws Exception{
-		ArrayList<Goods> goodsList=new ArrayList<Goods>();
-		PreparedStatement pstmt=con.prepareStatement(sql);
-		ResultSet rs=pstmt.executeQuery();
-		while(rs.next()){
-			Goods goods = new Goods();
-			goods.setGid(rs.getInt("gid"));
-			goods.setGoodsId(rs.getString("goodsId"));
-			goods.setGoodsName(rs.getString("goodsName"));
-			goods.setProId(rs.getString("proId"));
-			goods.setTypeId(rs.getString("typeId"));
-			goods.setGoodsDesc(rs.getString("goodsDesc"));
-			goods.setProDate(rs.getDate("proData"));
-			goodsList.add(goods);
-		}
-		return goodsList;
-	}
-	
-	
-	public Goods getGoodsById(Connection con,String id)throws Exception{
-		String sql="SELECT * from t_goods;";
-		PreparedStatement pstmt=con.prepareStatement(sql);
-		ResultSet rs=pstmt.executeQuery();
-		Goods goods = new Goods();
-		while(rs.next()){
-			goods.setGid(rs.getInt("gid"));
-			goods.setGoodsId(rs.getString("goodsId"));
-			goods.setGoodsName(rs.getString("goodsName"));
-			goods.setProId(rs.getString("proId"));
-			goods.setTypeId(rs.getString("typeId"));
-			goods.setGoodsDesc(rs.getString("goodsDesc"));
-		}
-		return goods;
-	}
+
 }

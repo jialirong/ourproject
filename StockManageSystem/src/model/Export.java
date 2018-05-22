@@ -11,6 +11,15 @@ public class Export {
 	private String expoNum;
 	private String expoDesc;
 	private String serId;
+	private String couId;
+
+	
+	public String getCouId() {
+		return couId;
+	}
+	public void setCouId(String couId) {
+		this.couId = couId;
+	}
 	private int brforeNum; 
 	private String whid;
 	public String getWhid() {

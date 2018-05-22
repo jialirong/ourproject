@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class DbUtil {
-	private String url = "jdbc:mysql://localhost:3306/db_stockmanage";
+	private String url = "jdbc:mysql://localhost:3306/db_stockmanage?useUnicode=true&characterEncoding=utf-8";
 	private String user = "root";
 	private String password = "root";
 	private String jdbcName = "com.mysql.jdbc.Driver";

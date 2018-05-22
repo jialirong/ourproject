@@ -13,10 +13,13 @@ import org.apache.struts2.ServletActionContext;
 import util.DbUtil;
 import util.ExcelUtil;
 import util.JsonUtil;
+import util.LogUtil;
 import util.ResponseUtil;
 import util.StringUtil;
 
 import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.util.logging.Logger;
+import com.opensymphony.xwork2.util.logging.LoggerFactory;
 
 import dao.GoodsTypeDao;
 import model.GoodsType;
@@ -34,6 +37,7 @@ public class GoodsTypeAction extends ActionSupport {
 	private String rows;
 	private String s_typeName;
 	private String s_wid;
+
 	public String getS_wid() {
 		return s_wid;
 	}
@@ -136,7 +140,10 @@ public class GoodsTypeAction extends ActionSupport {
 			if(delNums>0){
 				result.put("success", "true");
 				result.put("delNums",delNums);
+				LogUtil.log("删除商品类型成功");
 			}else{
+				LogUtil.log("删除商品类型失败");
+
 				result.put("errorMsg", "删除失败");
 			}
 			ResponseUtil.write(ServletActionContext.getResponse(), result);
@@ -158,8 +165,22 @@ public class GoodsTypeAction extends ActionSupport {
 			JSONObject result = new JSONObject();
 			if(StringUtil.isNotEmpty(gtid)){
 				saveNums = goodsTypeDao.goodsTypeModify(con, goodsType);
+				if(saveNums>0){
+					LogUtil.log("修改商品类型成功");
+
+				}else{
+					LogUtil.log("修改商品类型失败");
+
+				}
 			}else{
-				saveNums = goodsTypeDao.goodsTypeSave(con,goodsType);				
+				saveNums = goodsTypeDao.goodsTypeSave(con,goodsType);
+				if(saveNums>0){
+					LogUtil.log("增加商品类型成功");
+
+				}else{
+					LogUtil.log("增加商品类型失败");
+
+				}
 			}
 			if(saveNums>0){
 				result.put("success", "true");
@@ -178,6 +199,26 @@ public class GoodsTypeAction extends ActionSupport {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		return null;
+	}
+	
+
+	public String export() throws Exception{
+		Connection con = null;
+		try {
+			con=dbUtil.getCon();
+			Workbook wb=new HSSFWorkbook();
+			String headers[]={"编号","仓库编号","商品类别名称","商品类别描述"};
+			ResultSet rs=goodsTypeDao.goodsTypeList(con, null,null);
+			ExcelUtil.fillExcelData(rs, wb, headers);
+			ResponseUtil.export(ServletActionContext.getResponse(), wb, "excel.xls");
+			LogUtil.log("导出商品类型表成功");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			LogUtil.log("导出商品类型表失败");
+
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -206,19 +247,4 @@ public class GoodsTypeAction extends ActionSupport {
 		return null;
 	}
 	
-	public String export() throws Exception{
-		Connection con = null;
-		try {
-			con=dbUtil.getCon();
-			Workbook wb=new HSSFWorkbook();
-			String headers[]={"编号","仓库编号","商品类别名称","商品类别描述"};
-			ResultSet rs=goodsTypeDao.goodsTypeList(con, null,null);
-			ExcelUtil.fillExcelData(rs, wb, headers);
-			ResponseUtil.export(ServletActionContext.getResponse(), wb, "导出商品类型excel.xls");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
 }

@@ -3,6 +3,12 @@ package action;
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import model.Goods;
 import model.Import;
@@ -22,11 +28,15 @@ import org.apache.struts2.ServletActionContext;
 import util.DateUtil;
 import util.DbUtil;
 import util.ExcelUtil;
+import util.FileUtil;
 import util.JsonUtil;
+import util.LogUtil;
 import util.ResponseUtil;
 import util.StringUtil;
 
 import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.util.logging.Logger;
+import com.opensymphony.xwork2.util.logging.LoggerFactory;
 
 import dao.CouDao;
 import dao.GoodsTypeDao;
@@ -48,6 +58,16 @@ public class ImportAction extends ActionSupport{
 	private String s_wid;
 	private String beforeNum;
 	private String whid;
+
+
+
+	private int s_couId;
+	private int s_userId;
+	
+	private Goods goods;
+	private String delIds;
+	private String iid;
+	UserDao userDao = new UserDao();
 	public String getWhid() {
 		return whid;
 	}
@@ -69,13 +89,6 @@ public class ImportAction extends ActionSupport{
 
 
 
-	private int s_couId;
-	private int s_userId;
-	
-	private Goods goods;
-	private String delIds;
-	private String iid;
-	UserDao userDao = new UserDao();
 	
 	
 	
@@ -192,16 +205,11 @@ public class ImportAction extends ActionSupport{
 			
 			importGoods = new Import();
 			goods = new Goods();
-			if(s_goodsId!=null){
-				importGoods.setGoodsId(s_goodsId);
-			}
-			if(s_goodsName!=null){
-				goods.setGoodsName(s_goodsName);
-			}
-			System.out.println("@@@@@@@@@@@@@@@@@@@@@@@"+s_bimpoDate);
+		
 			
 			con = dbUtil.getCon();
 			JSONObject result = new JSONObject();
+			//把查询出的数据以json的格式存好
 			JSONArray jsonArray = JsonUtil.formatRsToJsonArray(importDao.importList(con, pageBean,goods,importGoods,s_bimpoPrice,s_eimpoPrice,s_bimpoDate,s_eimpoDate,s_wid));
 			int total = importDao.importCount(con,goods,importGoods,s_bimpoPrice,s_eimpoPrice,s_bimpoDate,s_eimpoDate);
 			result.put("rows", jsonArray);
@@ -225,19 +233,20 @@ public class ImportAction extends ActionSupport{
 		try {
 			con = dbUtil.getCon();
 			JSONObject result = new JSONObject();
-			String str[] = delIds.split(",");
-			System.out.println(str.length);
+			String str[] = delIds.split(",");//前台调用该函数的时候传递过来的
 			int delNums = importDao.importDelete(con,delIds);
-			System.out.println(delNums);
 			if(delNums>0){
 				result.put("success", "true");
 				result.put("delNums",delNums);
-			}else{
+				LogUtil.log("删除入库信息成功");
 				
-
+			}else{
+			
 				result.put("errorMsg", "删除失败");
+
+				LogUtil.log("删除入库信息失败");
 			}
-			ResponseUtil.write(ServletActionContext.getResponse(), result);
+			ResponseUtil.write(ServletActionContext.getResponse(), result);//将信息返回给页面
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -246,6 +255,90 @@ public class ImportAction extends ActionSupport{
 	}
 	
 	CouDao couDao = new CouDao();
+	
+	
+	public String save() throws Exception{
+		if(StringUtil.isNotEmpty(iid)){
+			System.out.println(iid);
+			importGoods.setIid(Integer.parseInt(iid));
+		}
+		if(StringUtil.isNotEmpty(beforeNum)){
+			importGoods.setBeforeNum(Integer.parseInt(beforeNum));
+		}
+		if(StringUtil.isNotEmpty(whid)){
+			importGoods.setWhid(Integer.parseInt(whid));
+		}
+		Connection con = null;
+		try {
+			
+			con = dbUtil.getCon();
+			int saveNums = 0;
+			JSONObject result = new JSONObject();
+			if(StringUtil.isNotEmpty(iid)){//若前台传入了这个参数代表前台想要的是修改入库信息
+				saveNums = importDao.importModify(con, importGoods);
+				if(saveNums>0){
+				
+					LogUtil.log("修改入库信息成功");
+				}else{
+					
+				LogUtil.log("修改入库信息失败");
+		
+
+				}
+			}else{
+				saveNums = importDao.importSave(con,importGoods);	
+				if(saveNums>0){
+				
+					LogUtil.log("增加入库信息成功");
+				}else{
+			
+					LogUtil.log("增加入库信息失败");
+				}
+			}
+			if(saveNums>0){
+				result.put("success", "true");
+			}else{
+				
+				result.put("errorMsg", "保存失败");
+			}
+			ResponseUtil.write(ServletActionContext.getResponse(), result);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			try {
+				dbUtil.closeCon(con);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	public String export() throws Exception{
+		Connection con = null;
+		try {
+			con=dbUtil.getCon();
+			Workbook wb=new HSSFWorkbook();
+			String headers[]={"入库编号","商品编号","入库价格","入库日期","入库数量","入库描述","业务员编号","客户编号"};
+			ResultSet rs=importDao.importList(con, null, null, null, null, null, null, null, null);
+			ExcelUtil.fillExcelData(rs, wb, headers);
+			ResponseUtil.export(ServletActionContext.getResponse(), wb, "excel.xls");
+			LogUtil.log("导出入库表成功");
+		
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+
+			LogUtil.log("导出入库表失败");
+
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+
+	
 	public String importCouComboList()throws Exception{
 		Connection con=null;
 	
@@ -254,8 +347,7 @@ public class ImportAction extends ActionSupport{
 			con=dbUtil.getCon();
 			JSONArray jsonArray=new JSONArray();
 			JSONObject jsonObject=new JSONObject();
-			jsonObject.put("cid", "");
-			jsonObject.put("couId", "请选择...");
+			jsonObject.put("ct", "");
 			
 			jsonArray.add(jsonObject);
 			jsonArray.addAll(JsonUtil.formatRsToJsonArray(couDao.coutList(con)));
@@ -282,8 +374,7 @@ public class ImportAction extends ActionSupport{
 			con=dbUtil.getCon();
 			JSONArray jsonArray=new JSONArray();
 			JSONObject jsonObject=new JSONObject();
-//			jsonObject.put("serviceId", "");
-			jsonObject.put("uid", "请选择...");
+			jsonObject.put("ut", "请选择...");
 			
 			jsonArray.add(jsonObject);
 			jsonArray.addAll(JsonUtil.formatRsToJsonArray(userDao.usertList(con)));
@@ -299,105 +390,6 @@ public class ImportAction extends ActionSupport{
 				e.printStackTrace();
 			}
 		}
-		return null;
-	}
-	
-	public String save() throws Exception{
-		if(StringUtil.isNotEmpty(iid)){
-			System.out.println(iid);
-			importGoods.setIid(Integer.parseInt(iid));
-			System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-		}
-		if(StringUtil.isNotEmpty(beforeNum)){
-			importGoods.setBeforeNum(Integer.parseInt(beforeNum));
-		}
-		if(StringUtil.isNotEmpty(whid)){
-			importGoods.setWhid(Integer.parseInt(whid));
-		}
-		Connection con = null;
-		try {
-			
-			con = dbUtil.getCon();
-			int saveNums = 0;
-			JSONObject result = new JSONObject();
-			if(StringUtil.isNotEmpty(iid)){
-				System.out.println(importGoods);
-				saveNums = importDao.importModify(con, importGoods);
-			}else{
-				saveNums = importDao.importSave(con,importGoods);				
-			}
-			if(saveNums>0){
-				result.put("success", "true");
-			}else{
-				
-				result.put("errorMsg", "保存失败");
-			}
-			ResponseUtil.write(ServletActionContext.getResponse(), result);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
-			try {
-				dbUtil.closeCon(con);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
-	
-	public String export() throws Exception{
-		Connection con = null;
-		try {
-			con = dbUtil.getCon();
-			Workbook wb=ExcelUtil.fillExcelDataWithTemplate(importDao.exportData(con), "importTemp.xls");
-			ResponseUtil.export(ServletActionContext.getResponse(), wb, "导出excel.xls");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public String upload()throws Exception{
-		POIFSFileSystem fs=new POIFSFileSystem(new FileInputStream(userUploadFile));
-		HSSFWorkbook wb=new HSSFWorkbook(fs);
-		HSSFSheet hssfSheet=wb.getSheetAt(0);  // 获取第一个Sheet页
-		if(hssfSheet!=null){
-			for(int rowNum=1;rowNum<=hssfSheet.getLastRowNum();rowNum++){
-				HSSFRow hssfRow=hssfSheet.getRow(rowNum);
-				if(hssfRow==null){
-					continue;
-				}
-				Import importGoods = new Import();
-				
-				importGoods.setGoodsId(ExcelUtil.formatCell(hssfRow.getCell(0)));
-				importGoods.setImpoPrice(ExcelUtil.formatCell(hssfRow.getCell(1)));
-				
-				/*HSSFCell hssfCell=hssfRow.getCell(2);
-				String dateFormat = ExcelUtil.getCell(hssfCell);
-				System.out.println(dateFormat.toString());*/
-				
-				importGoods.setImpoDate(DateUtil.formatString(ExcelUtil.getCell(hssfRow.getCell(2)), "yyyy-MM-dd"));
-				importGoods.setImpoNum(ExcelUtil.formatCell(hssfRow.getCell(3)));
-				importGoods.setImpoDesc(ExcelUtil.formatCell(hssfRow.getCell(4)));
-				
-				
-				Connection con=null;
-				try{
-					con=dbUtil.getCon();
-					importDao.importSave(con, importGoods);
-				}catch(Exception e){
-					e.printStackTrace();
-				}finally{
-					dbUtil.closeCon(con);
-				}
-			}
-		}
-		JSONObject result=new JSONObject();
-		result.put("success", "true");
-		ResponseUtil.write(ServletActionContext.getResponse(), result);
 		return null;
 	}
 }

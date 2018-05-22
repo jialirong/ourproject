@@ -2,8 +2,8 @@ package model;
 
 public class PageBean {
 
-	private int page;
-	private int rows;
+	private int page;//当前页数
+	private int rows;//一共多少行
 	private int start;
 	
 	public PageBean(int page, int rows) {

@@ -21,6 +21,7 @@ import org.apache.struts2.ServletActionContext;
 import util.DbUtil;
 import util.ExcelUtil;
 import util.JsonUtil;
+import util.LogUtil;
 import util.ResponseUtil;
 import util.StringUtil;
 
@@ -129,7 +130,6 @@ public class GoodsAction extends ActionSupport {
 			goods = new Goods();
 			if(s_wid!=null){
 				goods.setWid(s_wid);
-				System.out.println("~~~~~~~~~~~~~~"+s_wid);
 			}
 			if(s_goodsName!=null){
 				goods.setGoodsName(s_goodsName);
@@ -142,12 +142,11 @@ public class GoodsAction extends ActionSupport {
 			if(s_typeId!=null){
 				goods.setTypeId(s_typeId);
 			}
-			System.out.println("~~~~~~~~~~~`");
 			con = dbUtil.getCon();
 			JSONObject result = new JSONObject();
 			JSONArray jsonArray = JsonUtil.formatRsToJsonArray(goodsDao.goodsList(con, pageBean,goods));
 			int total = goodsDao.goodsCount(con,goods);
-			result.put("rows", jsonArray);
+			result.put("rows", jsonArray);//必须以这个格式封装好传回去datagrid才会识别
 			result.put("total", total);
 			ResponseUtil.write(ServletActionContext.getResponse(), result);
 		}catch(Exception e){
@@ -171,10 +170,9 @@ public class GoodsAction extends ActionSupport {
 			
 			String str[] = delIds.split(",");
 			for(int i=0;i<str.length;i++){
-				boolean f1 = importDao.getGoodsByImportId(con,str[i]);
-				boolean f2 = exportDao.getGoodsByExportId(con,str[i]);
+				
 				boolean f3 = stockDao.getGoodsByStockId(con,str[i]);
-				if(f1 || f2 || f3){
+				if(f3){
 					result.put("errorIndex", i);
 					result.put("errorMsg", "商品库存量大于0，不能删除");
 					ResponseUtil.write(ServletActionContext.getResponse(), result);
@@ -237,6 +235,28 @@ public class GoodsAction extends ActionSupport {
 		return null;
 	}
 	
+
+	
+	public String export() throws Exception{
+		Connection con = null;
+		try {
+			con=dbUtil.getCon();
+			Workbook wb=new HSSFWorkbook();//创建一个Excel文件 
+			String headers[]={"编号","外部编号","商品名","供应商编号","商品类型","商品描述","出库日期"};
+			ResultSet rs=goodsDao.goodsList(con, null, null);
+			ExcelUtil.fillExcelData(rs, wb, headers);
+			ResponseUtil.export(ServletActionContext.getResponse(), wb, "excel.xls");
+			LogUtil.log("导出商品信息成功");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LogUtil.log("导出商品信息失败");
+
+		}
+		return null;
+	}
+	
+	
 	public String goodsComboList()throws Exception{
 		Connection con=null;
 		try{
@@ -244,9 +264,9 @@ public class GoodsAction extends ActionSupport {
 			con=dbUtil.getCon();
 			JSONArray jsonArray=new JSONArray();
 			JSONObject jsonObject=new JSONObject();
-//			jsonObject.put("goodsId", "");
 			jsonObject.put("ggid", "请选择...");
 			jsonArray.add(jsonObject);
+			//把所有的结果以json的格式返回
 			jsonArray.addAll(JsonUtil.formatRsToJsonArray(goodsDao.goodsList(con, null,goods)));
 			System.out.println(jsonArray.toString());
 			ResponseUtil.write(ServletActionContext.getResponse(), jsonArray);
@@ -262,53 +282,5 @@ public class GoodsAction extends ActionSupport {
 		}
 		return null;
 	}
-	
-	public String export() throws Exception{
-		Connection con = null;
-		try {
-			con = dbUtil.getCon();
-			Workbook wb=ExcelUtil.fillExcelDataWithTemplate(goodsDao.exportData(con), "goodsTemp.xls");
-			ResponseUtil.export(ServletActionContext.getResponse(), wb, "导出excel.xls");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public String upload()throws Exception{
-		POIFSFileSystem fs=new POIFSFileSystem(new FileInputStream(userUploadFile));
-		HSSFWorkbook wb=new HSSFWorkbook(fs);
-		HSSFSheet hssfSheet=wb.getSheetAt(0);  // 获取第一个Sheet页
-		if(hssfSheet!=null){
-			//得到每一行用hssfRow表示
-			for(int rowNum=1;rowNum<=hssfSheet.getLastRowNum();rowNum++){
-				HSSFRow hssfRow=hssfSheet.getRow(rowNum);
-				if(hssfRow==null){
-					continue;
-				}
-				Goods goods = new Goods();
-				//分别得到每一行的每一列
-				goods.setGoodsId(ExcelUtil.formatCell(hssfRow.getCell(0)));
-				goods.setGoodsName(ExcelUtil.formatCell(hssfRow.getCell(1)));
-				goods.setProId(ExcelUtil.formatCell(hssfRow.getCell(2)));
-				goods.setTypeId(ExcelUtil.formatCell(hssfRow.getCell(3)));
-				goods.setGoodsDesc(ExcelUtil.formatCell(hssfRow.getCell(4)));
-								
-				Connection con=null;
-				try{
-					con=dbUtil.getCon();
-					goodsDao.goodsAdd(con, goods);
-				}catch(Exception e){
-					e.printStackTrace();
-				}finally{
-					dbUtil.closeCon(con);
-				}
-			}
-		}
-		JSONObject result=new JSONObject();
-		result.put("success", "true");
-		ResponseUtil.write(ServletActionContext.getResponse(), result);
-		return null;
-	}
+
 }

@@ -11,9 +11,9 @@
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/locale/easyui-lang-zh_CN.js"></script>
 <%
-	Object obj = session.getAttribute("currentUser"); 
+	Object obj = session.getAttribute("username"); 
 		if(obj==null){
-			request.getRequestDispatcher("index_2.jsp").forward(request, response);
+			request.getRequestDispatcher("index_1.jsp").forward(request, response);
 	} 
 %>
 
@@ -22,8 +22,6 @@
 	
 	function searchExport1(){
 		$('#dg1').datagrid('load',{
-			s_goodsId:$('#s_goodsId').val(),
-			//s_goodsName:$('#s_goodsName').val(),
 			s_wid:$('#s_wid').combobox("getValue"),
 			s_bexpoPrice:$('#s_bexpoPrice').val(),
 			s_eexpoPrice:$('#s_eexpoPrice').val(),
@@ -32,15 +30,9 @@
 		});
 	}
 
-	function openChoiceGoodsDialog(){
-		$("#dlg2").dialog("open").dialog("setTitle","选择商品");
-	}
+
 	
-	function searchExport2(){
-		$('#dg2').datagrid('load',{
-			s_goodsName:$('#s_goodsName').val(),
-		});
-	}
+
 	
 	function deleteExport(){
 		var selectedRows = $("#dg1").datagrid("getSelections");
@@ -91,11 +83,10 @@
 		$("#fm").form("submit",{
 			url:url,
 			onSubmit:function(){
-				return $(this).form("validate");
+				return $(this).form("validate");<!--?-->
 			},
 			success:function(result){
 				if(result.errorMsg!=null){
-				//reuslt.errorMsg
 				
 					$.messager.alert("系统提示","保存失败");
 					return error;
@@ -123,7 +114,8 @@
 		$("#expoNum").val(row.expoNum);
 		$("#expoDesc").val(row.expoDesc);
 		$("#serId").combobox("setValue",row.serId);
-		$("#whid").combobox("setValue",row.whid);
+		$("#couId").combobox("setValue",row.couid);
+		$("#whid").combobox("setValue",row.wareid);
 		url="${pageContext.request.contextPath}/stockManageSystem/export!save?eid="+row.eid+"&brforeNum="+row.expoNum;
 	}
 	
@@ -147,10 +139,10 @@
 			<tr>
 				<th field="cb" checkbox="true"></th>
 				<th field="eid" width="20">编号</th>
-				<th field="goodsId" width="20" hidden="true">商品ID</th>
 				<th field="goodsName" width="30">商品名称</th>
-				<th field="uid" width="30">出库业务员</th>
-				<th field="wid" width="30">出库仓库编号</th>
+				<th field="serId" width="30">出库业务员</th>
+				<th field="wareid" width="30">出库仓库编号</th>
+				<th field="couid" width="30">出库货主编号</th>
 				<th field="expoPrice" width="30">销售价格</th>
 				<th field="expoDate" width="60">出库时间</th>
 				<th field="expoNum" width="60">出库数量</th>
@@ -172,7 +164,7 @@
 		&nbsp;仓库类别：&nbsp;<input class="easyui-combobox" id="s_wid" name="s_wid" size="10" data-options="panelHeight:'auto',editable:false,valueField:'wid',textField:'wName',url:'${pageContext.request.contextPath}/stockManageSystem/warehouse!wareHouseComboList'"/>
 		
 		&nbsp;&nbsp;&nbsp;<a href="javascript:searchExport1()" class="easyui-linkbutton" iconCls="icon-search" >搜索</a>
-		&nbsp;&nbsp;&nbsp;<a href="javascript:openChoiceGoodsDialog()" class="easyui-linkbutton" iconCls="icon-tip">选择商品</a>
+		&nbsp;&nbsp;&nbsp;
 		<a href="javascript:cleraValue()" class="easyui-linkbutton" iconCls="icon-no" plain="true">清空</a>
 		</div>
 		
@@ -198,11 +190,12 @@
 				</tr>
 				<tr>
 					<td>业务员编号：</td>
-					<td><input class="easyui-combobox" id="serId" name="exportGoods.serId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'uid',textField:'uid',url:'${pageContext.request.contextPath}/stockManageSystem/import!importServiceComboList'"/></td>
-					
-				<tr>
+					<td><input class="easyui-combobox" id="serId" name="exportGoods.serId" size="10" data-options="panelHeight:'auto',editable:false,valueField:'ut',textField:'uid',url:'${pageContext.request.contextPath}/stockManageSystem/import!importServiceComboList'"/></td>
+				<td>货主名称：</td>
+					 <td><input name="exportGoods.couId" id="couId"  class="easyui-combobox" size="10" data-options="panelHeight:'auto',editable:false,valueField:'ct',textField:'name',url:'${pageContext.request.contextPath}/stockManageSystem/import!importCouComboList'"/></td> 
+				</tr>
 					<td>仓库名称：</td>
-					<td><input type="text" name="exportGoods.whid" id="whid" class="easyui-combobox" size="10" required="true" data-options="panelHeight:'auto',editable:false,valueField:'wid',textField:'wName',url:'${pageContext.request.contextPath}/stockManageSystem/warehouse!wareHouseComboList'"/></td>
+					<td><input type="text" name="exportGoods.whid" id="whid" class="easyui-combobox" size="10" required="true" data-options="panelHeight:'auto',editable:false,valueField:'wt',textField:'wName',url:'${pageContext.request.contextPath}/stockManageSystem/warehouse!wareHouseComboList'"/></td>
 				
 				
 					<td valign="top">出库备注：</td>
@@ -217,38 +210,6 @@
 		<a href="javascript:closeImportDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
 	</div>
 	
-	<!-- 选择商品 -->
-	<div id="dlg2" class="easyui-dialog" style="width: 600px;height: 350px;padding: 10px 20px"
-		closed="true">
-		
-			<table cellspacing="5px;">
-				<tr>
-					<td>&nbsp;&nbsp;&nbsp;&nbsp;商品名称：</td>
-					<td><input type="text" size="15" name="s_goodsName" id="s_goodsName" class="easyui-validatebox" /></td>
-					
-					<td><a href="javascript:searchExport2()" class="easyui-linkbutton" iconCls="icon-search">搜索</a></td>
-				</tr>
-				<tr>
-					<td colspan="3">
-						<table style="height:250px; width:540px" id="dg2" title="商品选择" class="easyui-datagrid" fitColumns="true"
-	 							pagination="true" rownumbers="true" url="${pageContext.request.contextPath}/stockManageSystem/export">
-	 							<thead>
-									<tr>
-										
-										<th field="goodsId" width="20" hidden="true">商品ID</th>
-										<th field="goodsName" width="70">商品名称</th>
-										<th field="expoPrice" width="70">销售价格</th>
-										<th field="expoDate" width="70">出库时间</th>
-										<th field="expoNum" width="70">出库数量</th>
-										<th field="expoDesc" width="100">出库备注</th>
-									</tr>
-								</thead>
-	 							
-	 					</table>
-					</td>
-				</tr>
-			</table>
-		
-	</div>
+	
 </body>
 </html>

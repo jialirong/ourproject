@@ -10,16 +10,17 @@ public class Goods {
 	private String proId;
 	private String typeId;
 	private String wid;
+	private String goodsDesc;
+	private int serviceId;
+	private int couId;
+	private Date proDate;
 	public String getWid() {
 		return wid;
 	}
 	public void setWid(String wid) {
 		this.wid = wid;
 	}
-	private String goodsDesc;
-	private int serviceId;
-	private int couId;
-	private Date proDate;
+
 	public Date getProDate() {
 		return proDate;
 	}

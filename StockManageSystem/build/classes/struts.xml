@@ -6,15 +6,15 @@
 <struts>
 	<package name="stockManageSystem" namespace="/stockManageSystem" extends="struts-default">
 		
-		<action name="goindex" class="action.IndexAction">
-			<result name="index">/pages/admin/index_2.jsp</result>
-		</action>
+		<!-- <action name="goindex" class="action.IndexAction">
+			<result name="index">/pages/admin/index_1.jsp</result>
+		</action> -->
 		
 		<action name="login" class="action.LoginAction">
-			<result name="login">/pages/admin/index_2.jsp</result>
-			<result name="error">/pages/admin/index_2.jsp</result>
+			<result name="login">/pages/admin/index_1.jsp</result>
+			<result name="error">/pages/admin/index_1.jsp</result>
 			<result name="main" type="redirect">/pages/admin/main.jsp</result>
-			<result name="logout" type="redirect">/pages/admin/index_2.jsp</result>
+			<result name="logout" type="redirect">/pages/admin/index_1.jsp</result>
 		</action>
 		
 		
@@ -47,9 +47,12 @@
 		
 		<action name="day" class="action.DayAction">	
 		</action> 
+		
+		<action name="log" class="util.LogUtil">	
+		</action>
 	</package>
 	
-	<package name="jfreechart" extends="jfreechart-default">
+<!-- 	<package name="jfreechart" extends="jfreechart-default">
 		<action name="barChart" class="action.BarCharAction">
 			<result name="success" type="chart">
 			   <param name="value">chart</param>
@@ -61,7 +64,7 @@
 		
 		
 		
-	</package>
+	</package> -->
 	
 	
  		

@@ -113,6 +113,7 @@
 	}
 	//查询条件清空
 	function cleraValue(){
+		$("#s_wid").combobox("setValue","");
 		$("#s_goodsId").val("");
 		$("#s_goodsName").val("");
 		$("#s_proId").combobox("setValue","");
@@ -122,28 +123,13 @@
 		window.open('${pageContext.request.contextPath}/stockManageSystem/goods!export')
 	}
 	
-	function openUploadFileDialog(){
-		$("#dlg3").dialog('open').dialog('setTitle','批量导入数据');
-	}
+
 	
 	function downloadTemplate(){
 		window.open('${pageContext.request.contextPath}/template/goodsTemp.xls');
 	}
 	
-	function uploadFile(){
-		$("#uploadForm").form("submit",{
-			success:function(result){
-				var result=eval('('+result+')');//这样才能搞成JS对象
-				if(result.errorMsg){
-					$.messager.alert("系统提示",result.errorMsg);
-				}else{
-					$.messager.alert("系统提示","上传成功");
-					$("#dlg3").dialog("close");
-					$("#dg").datagrid("reload");
-				}
-			}
-		});
-	}
+
 </script>
 
 </head>
@@ -177,7 +163,6 @@
 			<a href="javascript:openGoodsModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
 			<a href="javascript:deleteGoods()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
 			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="exportData()">导出数据</a>
-			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="openUploadFileDialog()">导入数据</a>
 		</div>
 		<div>&nbsp;仓库名称：&nbsp;<input class="easyui-combobox" id="s_wid" name="s_wid" size="10" data-options="panelHeight:'auto',editable:false,valueField:'wid',textField:'wName',url:'${pageContext.request.contextPath}/stockManageSystem/warehouse!wareHouseComboList'"/>
 			&nbsp;商品名称：&nbsp;<input type="text" name="s_goodsName" id="s_goodsName" size="10" />
@@ -226,25 +211,8 @@
 		<a href="javascript:closeGoodsDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
 	</div>
 	
-	<div id="dlg3" class="easyui-dialog" style="width:400px;height:180px;padding:10px 20px"
-            closed="true" buttons="#dlg-buttons3">
-        <form id="uploadForm" action="${pageContext.request.contextPath}/stockManageSystem/goods!upload" method="post" enctype="multipart/form-data">
-        	<table>
-        		<tr>
-        			<td>下载模版：</td>
-        			<td><a href="javascript:void(0)" class="easyui-linkbutton"  onclick="downloadTemplate()">导入模版</a></td>
-        		</tr>
-        		<tr>
-        			<td>上传文件：</td>
-        			<td><input type="file" name="userUploadFile"></td>
-        		</tr>
-        	</table>
-        </form>
-	</div>
+	
     
-	<div id="dlg-buttons3">
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="uploadFile()">上传</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg3').dialog('close')">关闭</a>
-	</div>
+	
 </body>
 </html>

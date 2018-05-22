@@ -2,6 +2,11 @@ package action;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import model.Export;
 import model.Goods;
@@ -15,10 +20,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.struts2.ServletActionContext;
 
 import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.util.logging.Logger;
+import com.opensymphony.xwork2.util.logging.LoggerFactory;
 
+import util.DateUtil;
 import util.DbUtil;
 import util.ExcelUtil;
+import util.FileUtil;
 import util.JsonUtil;
+import util.LogUtil;
 import util.ResponseUtil;
 import util.StringUtil;
 import dao.ExportDao;
@@ -30,7 +40,6 @@ public class ExportAction extends ActionSupport{
 	private String rows;
 	private Export exportGoods;
 	private Goods goods;
-	private String s_goodsId;
 	private String s_wid;
 	private String whid;
 	public String getWhid() {
@@ -51,17 +60,18 @@ public class ExportAction extends ActionSupport{
 	private String s_eexpoPrice;
 	private String s_bexpoDate;
 	private String s_eexpoDate;
-	private String s_goodsName;
 	private String delIds;
 	private String eid;
 	private String brforeNum;
-	
+
 	public String getBrforeNum() {
 		return brforeNum;
 	}
 	public void setBrforeNum(String brforeNum) {
 		this.brforeNum = brforeNum;
 	}
+
+
 	public String getPage() {
 		return page;
 	}
@@ -86,12 +96,7 @@ public class ExportAction extends ActionSupport{
 	public void setGoods(Goods goods) {
 		this.goods = goods;
 	}
-	public String getS_goodsId() {
-		return s_goodsId;
-	}
-	public void setS_goodsId(String s_goodsId) {
-		this.s_goodsId = s_goodsId;
-	}
+
 	public String getS_bexpoPrice() {
 		return s_bexpoPrice;
 	}
@@ -116,12 +121,7 @@ public class ExportAction extends ActionSupport{
 	public void setS_eexpoDate(String s_eexpoDate) {
 		this.s_eexpoDate = s_eexpoDate;
 	}
-	public String getS_goodsName() {
-		return s_goodsName;
-	}
-	public void setS_goodsName(String s_goodsName) {
-		this.s_goodsName = s_goodsName;
-	}
+
 	public String getDelIds() {
 		return delIds;
 	}
@@ -140,30 +140,22 @@ public class ExportAction extends ActionSupport{
 
 	DbUtil dbUtil = new DbUtil();
 	ExportDao exportDao = new ExportDao();
-	
+
 	@Override
 	public String execute() throws Exception {
 		Connection con = null;
 		PageBean pageBean = new PageBean(Integer.parseInt(page),Integer.parseInt(rows));
 		try {
-			
+
 			exportGoods = new Export();
 			goods = new Goods();
-			if(s_goodsId!=null){
-				exportGoods.setGoodsId(s_goodsId);
-			}
-			if(s_goodsName!=null){
-				goods.setGoodsName(s_goodsName);
-			}
-			System.out.println("####################");
-			System.out.println( s_bexpoDate+".............1..........");
-			System.out.println( s_eexpoDate+" ..........2.............");
 			con = dbUtil.getCon();
 			JSONObject result = new JSONObject();
+			//get rs
 			JSONArray jsonArray = JsonUtil.formatRsToJsonArray(exportDao.exportList(con, pageBean,goods,exportGoods,s_bexpoPrice,s_eexpoPrice,s_bexpoDate,s_eexpoDate,s_wid));
 			int total = exportDao.exportCount(con,goods,exportGoods,s_bexpoPrice,s_eexpoPrice,s_bexpoDate,s_eexpoDate);
-			result.put("rows", jsonArray);
-			result.put("total", total);
+			result.put("rows", jsonArray);//
+			result.put("total", total);//
 			ResponseUtil.write(ServletActionContext.getResponse(), result);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -177,7 +169,7 @@ public class ExportAction extends ActionSupport{
 		}
 		return null;
 	}
-	
+
 	public String delete() throws Exception{
 		Connection con = null;
 		try {
@@ -188,50 +180,11 @@ public class ExportAction extends ActionSupport{
 			if(delNums>0){
 				result.put("success", "true");
 				result.put("delNums",delNums);
+				LogUtil.log("删除出库信息成功");
 			}else{
+				LogUtil.log("删除出库信息失败");
 				result.put("errorMsg", "删除失败");
 			}
-			ResponseUtil.write(ServletActionContext.getResponse(), result);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public String save() throws Exception{
-		if(StringUtil.isNotEmpty(eid)){
-			
-			exportGoods.setEid(Integer.parseInt(eid));
-		}
-		System.out.println("...................."+brforeNum);
-		if(StringUtil.isNotEmpty(brforeNum)){
-			exportGoods.setBrforeNum(Integer.parseInt(brforeNum));
-		}
-		Connection con = null;
-		try {
-			con = dbUtil.getCon();
-			int saveNums = 0;
-			JSONObject result = new JSONObject();
-			if(StringUtil.isNotEmpty(eid)){
-				saveNums = exportDao.exportModify(con, exportGoods);
-				System.out.println("#########################"+saveNums);
-
-			}else{
-				saveNums = exportDao.exportSave(con,exportGoods);	
-			}
-			
-			
-			if(saveNums>0){
-				result.put("success", "true");
-			}
-			else {
-//				result.put("success", "true");
-//				System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`");
-				result.put("errorMsg", "保存失败");
-			}
-			
-			
 			ResponseUtil.write(ServletActionContext.getResponse(), result);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -246,16 +199,85 @@ public class ExportAction extends ActionSupport{
 		}
 		return null;
 	}
-	
-	public String export() throws Exception{
+
+	public String save() throws Exception{
+
+		if(StringUtil.isNotEmpty(eid)){
+
+			exportGoods.setEid(Integer.parseInt(eid));
+		}
+		if(StringUtil.isNotEmpty(brforeNum)){
+			exportGoods.setBrforeNum(Integer.parseInt(brforeNum));
+		}
 		Connection con = null;
 		try {
 			con = dbUtil.getCon();
-			Workbook wb=ExcelUtil.fillExcelDataWithTemplate(exportDao.exportData(con), "exportTemp.xls");
-			ResponseUtil.export(ServletActionContext.getResponse(), wb, "导出excel.xls");
+			int saveNums = 0;
+			JSONObject result = new JSONObject();
+			if(StringUtil.isNotEmpty(eid)){
+				saveNums = exportDao.exportModify(con, exportGoods);
+				
+				if(saveNums>0){
+					LogUtil.log("修改出库信息成功");
+				}else{
+					LogUtil.log("修改出库信息失败");
+				}
+			}else{
+				saveNums = exportDao.exportSave(con,exportGoods);	
+				if(saveNums>0){
+					LogUtil.log("增加出库信息成功");
+
+				}else{
+					LogUtil.log("增加出库信息失败");
+
+				}
+			}
+			if(saveNums>0){
+				result.put("success", "true");
+			}
+			else {
+				result.put("errorMsg", "保存失败");
+			}
+			ResponseUtil.write(ServletActionContext.getResponse(), result);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally{
+			try {
+				dbUtil.closeCon(con);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public String export() throws Exception{
+
+		Connection con = null;
+		try {
+			con=dbUtil.getCon();
+			Workbook wb=new HSSFWorkbook();
+			String headers[]={"入库编号","商品编号","入库价格","入库日期","入库数量","入库描述","业务员编号","客户编号"};
+			ResultSet rs=exportDao.exportList(con,null , null, null, null, null, null, null, null);
+			ExcelUtil.fillExcelData(rs, wb, headers);
+			ResponseUtil.export(ServletActionContext.getResponse(), wb, "excel.xls");
+			LogUtil.log("导出出库信息成功");
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+
+			LogUtil.log("修改出库信息失败");
+
+			e.printStackTrace();
+		}finally{
+			try {
+				dbUtil.closeCon(con);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}

@@ -8,10 +8,10 @@
 	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
 			+ path + "/";
 	System.out.println(basePath);
-	Object obj = session.getAttribute("currentUser"); 
+	Object obj = session.getAttribute("username"); 
 	if(obj==null){
-		request.setAttribute("error1", "您还没有登陆");
-		request.getRequestDispatcher("index_2.jsp").forward(request, response);
+		request.setAttribute("error", "您还没有登陆");
+		request.getRequestDispatcher("index_1.jsp").forward(request, response);
 	}
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -43,7 +43,7 @@
 			{
 			text:"仓库管理",
 			children:[{
-				text:"产品管理",
+				text:"商品管理",
 				attributes:{
 					url:"${pageContext.request.contextPath}/pages/admin/goodsManage.jsp"
 				}
@@ -63,7 +63,7 @@
 					url:"${pageContext.request.contextPath}/pages/admin/exportManage.jsp"
 				}
 			},{
-				text:"日结账",
+				text:"结账",
 				attributes:{
 					url:"${pageContext.request.contextPath}/pages/admin/dayManage.jsp"
 				}
@@ -122,7 +122,7 @@
 			{
 			text:"仓库管理",
 			children:[{
-				text:"产品管理",
+				text:"商品管理",
 				attributes:{
 					url:"${pageContext.request.contextPath}/pages/admin/goodsManage.jsp"
 				}
@@ -142,7 +142,7 @@
 					url:"${pageContext.request.contextPath}/pages/admin/exportManage.jsp"
 				}
 			},{
-				text:"日结账",
+				text:"结账",
 				attributes:{
 					url:"${pageContext.request.contextPath}/pages/admin/dayManage.jsp"
 				}
@@ -186,7 +186,7 @@
 		<div
 			style="width: 65%; float: left; padding-top: 70px; height: 50px; font-size: 30px;">仓库管理系统</div>
 		<div style="padding-top: 50px; padding-right: 20px; font-size: 14px;">
-			当前用户：<font color="red" size="12px">${currentUser.userName }</font> <a
+			当前用户：<font color="red" size="12px">${sessionScope.username }</font> <a
 				href="${pageContext.request.contextPath}/stockManageSystem/login!logOut"><font
 				color="red">退出</font></a>
 

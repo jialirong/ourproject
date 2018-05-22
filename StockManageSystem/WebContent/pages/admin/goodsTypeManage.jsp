@@ -11,9 +11,9 @@
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/locale/easyui-lang-zh_CN.js"></script>
 <%
-	Object obj = session.getAttribute("currentUser"); 
+	Object obj = session.getAttribute("username"); 
 		if(obj==null){
-			request.getRequestDispatcher("index_2.jsp").forward(request, response);
+			request.getRequestDispatcher("index_1.jsp").forward(request, response);
 	} 
 %>
 
@@ -151,7 +151,7 @@
 					<td><input type="text" name="goodsType.typeName" id="typeName" class="easyui-validatebox" required="true"/></td>
 					
 							<td>商品所属仓库：</td>
-					<td><input class="easyui-combobox" id="wid" name="goodsType.wid" size="10" data-options="panelHeight:'auto',editable:false,valueField:'wid',textField:'wName',url:'${pageContext.request.contextPath}/stockManageSystem/warehouse!wareHouseComboList'"/></td>
+					<td><input class="easyui-combobox" id="wid" name="goodsType.wid" size="10" data-options="panelHeight:'auto',editable:false,valueField:'wt',textField:'wName',url:'${pageContext.request.contextPath}/stockManageSystem/warehouse!wareHouseComboList'"/></td>
 					
 				</tr>
 				<tr>

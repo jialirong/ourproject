@@ -5,93 +5,89 @@
   String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
  	System.out.println(basePath);
 %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <script src="../../js/jquery-1.12.4.min.js"></script>
-    <script src="js/jquery-ui-1.12.1.min.js"></script>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>库存管理系统</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>登录界面</title>
+ <link href="${pageContext.request.contextPath}/css/style1.css" rel="stylesheet" type="text/css" /> 
+<script language="JavaScript" src="${pageContext.request.contextPath}/js/jquery2.js"></script>
+ <script src="${pageContext.request.contextPath}/js/cloud.js" type="text/javascript"></script>
+<script language="javascript" src="${pageContext.request.contextPath}/js/js.js"></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/jquery-ui.min.css">
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery-1.8.3.js" ></script>
+  
 </head>
 
 <script type="text/javascript">
 	function resetValue() {
 		document.getElementById("userName").value = "";
 		document.getElementById("password").value = "";
+		document.getElementById("loginy").value = "";
+		
 	}
 	
 	function loadimage(){
 		document.getElementById("randImage").src = "${pageContext.request.contextPath}/pages/admin/image.jsp?"+Math.random();
 	} 
-</script>
-<style>
-body {
-	font: Verdana, Geneva, sans-serif;
-	font-size: 12px;
-}
-</style>
-<body>
+	
+	
+	 
+	 $(document).ready(function() {
+	       $("li span").blur(function(){
+	            $("span").hide();
+		   });
+			  
+		});
 
-<%if(request.getAttribute("error1")!=null){ %>
-<script type="text/javascript">
-alert(request.getAttribute("error1"));
-
-</script>
-<%} %>
-
-	<div
-		style="background:url('${pageContext.request.contextPath}/jpg/background.png') no-repeat 0/cover;position: relative;">
-		<div style="width: 4%; position: absolute; left: 30%; top: 7%;"></div>
-		<div
-			style="left: 38%; top: 14%; position: absolute; font-size: 28px; color: black">仓库管理系统</div>
-		<form action="${pageContext.request.contextPath}/stockManageSystem/login!login" method="post">
-			<table border="0px" width="1321" height="585">
-				<tr height="180">
-					<td height="50" colspan="4"></td>
-				</tr>
-				<tr height="10">
-					<td width="40%" height="23"></td>
-					<td width="5%">&nbsp;用户名：</td>
-					<td width="10%"><input type="text" value="${user.userName}"
-						name="user.userName" id="userName" size="17" height="10" /><span><font color="red">${error }</span></td>
-					
-				</tr>
-				<tr height="10">
-					<td width="40%" height="23"></td>
-					<td width="5%">&nbsp;密 码：</td>
-					<td><input type="password" value="${user.password }"
-						name="user.password" id="password" size="17" height="10" /></td>
-				</tr>
-				
-				 <tr height="10">
-					<td width="40%" height="26"></td>
-					<td width="5%">&nbsp;验证码：</td>
-					<td><input type="text" value="${imageCode }" name="imageCode"
-						id="imageCode" size="5" />&nbsp;<img
-						onclick="javascript:loadimage();" title="换一张试试" name="randImage"
-						id="randImage" src="image.jsp" width="60" height="20" border="1"
-						align="absmiddle"></td>
-					<td width="55%"></td>
-				</tr> 
-
-				<tr height="10">
-					<td width="40%" height="26"></td>
-					<td width="10%">&nbsp;&nbsp;<input type="submit" value="登录" />
-						&nbsp;<input type="button" value="重置" onclick="resetValue()" />&nbsp;&nbsp;<a href="#"><input type="button" value="忘记密码" onclick="resetValue()" /></a></td>
-					<td width="55%"></td>
-				</tr>
-
-				<tr>
-					<td width="40%" height="18"></td>
-					<td colspan="3"></td>
-				</tr>
-				<tr>
-					<td height="150" colspan="4"></td>
-				</tr>
-			</table>
-		</form>
-									
+	
+			
 		
-	</div>
+</script>
+<body style="background-color:#1c77ac; background-image: url(images/light.png) background-repeat:no-repeat; background-position:center top; overflow:hidden;">
+
+
+<div id="mainBody">
+  <div id="cloud1" class="cloud"></div>
+  <div id="cloud2" class="cloud"></div>
+</div>
+<div class="logintop"> <span>欢迎登录某外贸仓库管理系统后台</span>
+  <ul>
+    <li><a href="#">欢迎您</a></li>
+  </ul>
+</div>
+<div class="loginbody"> <span class="systemlogo"></span>
+  <div class="loginbox">
+   <form action="${pageContext.request.contextPath}/stockManageSystem/login!login" method="post">
+    <ul>
+    
+      <li>
+        <input type="text" value="${user.userName}"  name="user.userName" id="userName"  class="loginuser" placeholder="用户名" onclick="JavaScript:this.value=''"/><span >${requestScope.error }</span>	
+        
+      </li>
+      <li>
+        <input type="password" value="${user.password }"
+						name="user.password" id="password" class="loginpwd" placeholder="密码" onclick="JavaScript:this.value=''"/>
+      </li>
+      <li>
+        <input type="text" value="${imageCode }"  id="loginy" class="loginy" name="imageCode" id="imageCode" placeholder="输入验证码"/><label>
+        <img onclick="javascript:loadimage();" title="换一张试试" name="randImage" id="randImage" src="image.jsp" width="60" height="20" border="1" align="absmiddle"></label>
+      </li>
+      <li>
+        <input name="" type="submit" class="loginbtn" value="登录" />
+      </li>
+      <li>
+        <input name="" type="button" class="resetbtn" value="重置"  onclick="resetValue()" />
+      </li>
+
+    </ul>
+    </form>
+  
+  </div>
+</div>
+
+   
+
+<div class="loginbm">版权所有： 12组 © Copyright 2018 - 2019.</div>
 </body>
 </html>

@@ -92,14 +92,15 @@ public class StockDao {
 		pstmt.setInt(6, stock.getId());
 		return pstmt.executeUpdate();
 	}
+	
 	public int stockModify2(Connection con ,int sum,int goodsid,int num) throws Exception{
 		String sql = "update t_stock set stockNum=? where goodsId=?";
 		PreparedStatement pstmt=con.prepareStatement(sql);
-		
 		pstmt.setString(1, String.valueOf(sum-num));
 		pstmt.setInt(2,goodsid);
 		return pstmt.executeUpdate();
 	}
+	//用于删除商品时判断商品时否还有，能不能删除
 	public boolean getGoodsByStockId(Connection con,String delIds) throws Exception{
 		String sql = "select * from t_stock where goodsId=?";
 		PreparedStatement pstmt=con.prepareStatement(sql);

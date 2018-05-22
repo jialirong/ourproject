@@ -11,9 +11,9 @@
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/jquery-easyui-1.3.3/locale/easyui-lang-zh_CN.js"></script>
 <%
-	Object obj = session.getAttribute("currentUser"); 
+	Object obj = session.getAttribute("username"); 
 		if(obj==null){
-			request.getRequestDispatcher("index_2.jsp").forward(request, response);
+			request.getRequestDispatcher("index_1.jsp").forward(request, response);
 	} 
 %>
 
@@ -39,11 +39,7 @@
 		});
 	} 
 	
-	/* function searchImport2(){
-		$('#dg2').datagrid('load',{
-			s_goodsName:$('#s_goodsName').val(),
-		});
-	} */
+
 
 	function deleteStock(){
 		var selectedRows = $("#dg1").datagrid("getSelections");
@@ -156,6 +152,8 @@
 			<a href="javascript:openStockAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
 			<a href="javascript:openStockModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
 			<a href="javascript:deleteStock()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="exportData()">导出数据</a>
+			
 		</div>
 		<div>
 		&nbsp;&nbsp;成本价格：&nbsp;<input type="text" name="s_bimpoPrice" id="s_bimpoPrice"  size="10"/>--<input type="text" name="s_eimpoPrice" id="s_eimpoPrice"  size="10"/>
@@ -163,7 +161,6 @@
 		
 		&nbsp;&nbsp;&nbsp;<a href="javascript:searchStock1()" class="easyui-linkbutton" iconCls="icon-search" >搜索</a>
 		
-		&nbsp;&nbsp;&nbsp;<a href="javascript:openChoiceGoodsDialog()" class="easyui-linkbutton" iconCls="icon-tip">选择商品</a>
 		<a href="javascript:cleraValue()" class="easyui-linkbutton" iconCls="icon-no" plain="true">清空</a>
 		</div>
 		
@@ -200,36 +197,6 @@
 		<a href="javascript:closeStockDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
 	</div>
 	
-	<!-- 选择商品 -->
-	<div id="dlg2" class="easyui-dialog" style="width: 600px;height: 350px;padding: 10px 20px"
-		closed="true">
-		
-			<table cellspacing="5px;">
-				<tr>
-					<td>&nbsp;&nbsp;&nbsp;&nbsp;商品名称：</td>
-					<td><input type="text" size="15" name="s_goodsName" id="s_goodsName" class="easyui-validatebox" /></td>
-					<td><a href="javascript:searchStock2()" class="easyui-linkbutton" iconCls="icon-search">搜索</a></td>
-				</tr>
-				<tr>
-					<td colspan="3">
-						<table style="height:250px; width:540px" id="dg2" title="商品选择" class="easyui-datagrid" fitColumns="true"
-	 							pagination="true" rownumbers="true" url="${pageContext.request.contextPath}/stockManageSystem/stock">
-	 							<thead>
-									<tr>
-										<th field="id" width="12" hidden="true">编号</th>
-										<th field="goodsId" width="50">商品编号</th>
-										<th field="goodsName" width="70">商品名称</th>
-										<th field="stockNum" width="70">商品库存数量</th>
-										<th field="impoPrice" width="70">成本价</th>
-										<th field="expoPrice" width="70">销售价</th>
-										<th field="stockDesc" width="100">库存备注</th>
-									</tr>
-								</thead>	
-	 					</table>
-					</td>
-				</tr>
-			</table>
-		
-	</div>
+
 </body>
 </html>

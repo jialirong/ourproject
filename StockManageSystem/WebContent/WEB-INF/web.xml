@@ -2,7 +2,7 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
   <display-name>StockManageSystem</display-name>
   <welcome-file-list>
-    <welcome-file>/pages/admin/index_2.jsp</welcome-file>
+    <welcome-file>/pages/admin/index_1.jsp</welcome-file>
   </welcome-file-list>
   
   <filter>
@@ -13,4 +13,7 @@
 	      <filter-name>StrutsPrepareAndExecuteFilter</filter-name>
 	      <url-pattern>/stockManageSystem/*</url-pattern>
   </filter-mapping>
+  
+  
+ 
 </web-app>

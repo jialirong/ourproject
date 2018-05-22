@@ -17,93 +17,26 @@ public class ExcelUtil {
 	
 	public static void fillExcelData(ResultSet rs,Workbook wb,String[] headers)throws Exception{
 		int rowIndex=0;
-		Sheet sheet=wb.createSheet();
-		Row row=sheet.createRow(rowIndex++);
+		Sheet sheet=wb.createSheet();//创建一个Excel的Sheet
+		Row row=sheet.createRow(rowIndex++);//创建行
 		for(int i=0;i<headers.length;i++){
-			row.createCell(i).setCellValue(headers[i]);
+			row.createCell(i).setCellValue(headers[i]);//创建单元格并赋值  第一行的值
 		}
 		while(rs.next()){
 			row=sheet.createRow(rowIndex++);
 			for(int i=0;i<headers.length;i++){
-				row.createCell(i).setCellValue(rs.getObject(i+1).toString());
-			}
-		}
-	}
-	
-	public static Workbook fillExcelDataWithTemplate(ResultSet rs,String templateFileName)throws Exception{
-		InputStream inp=ExcelUtil.class.getResourceAsStream("/template/"+templateFileName);
-		POIFSFileSystem fs=new POIFSFileSystem(inp);
-		//Workbook工作簿对象对应一个Excel对象
-		Workbook wb=new HSSFWorkbook(fs);
-		Sheet sheet=wb.getSheetAt(0);
-		// 获取列数
-		int cellNums=sheet.getRow(0).getLastCellNum();
-		System.out.println(cellNums);
-		int rowIndex=1;
-		//rs获取到的第一行数据是数据表的字段名称，开始的时候指向-1所以要加一才可以读到
-		while(rs.next()){
-			Row row=sheet.createRow(rowIndex++);
-			for(int i=0;i<cellNums;i++){
-				row.createCell(i).setCellValue(rs.getObject(i+1).toString());
-			}
-		}
-		return wb;
-	}
-	
-	public static String formatCell(HSSFCell hssfCell){
-		//判断每一列的数据类型由此返回对应的值
-		if(hssfCell==null){
-			return "";
-		}else{
-			if(hssfCell.getCellType()==HSSFCell.CELL_TYPE_BOOLEAN){
-				return String.valueOf(hssfCell.getBooleanCellValue());
-			}else if(hssfCell.getCellType()==HSSFCell.CELL_TYPE_NUMERIC){
-				return String.valueOf(hssfCell.getNumericCellValue());
-			}else{
-				return String.valueOf(hssfCell.getStringCellValue());
+				if(headers.length>=6){
+				if(headers[6].equals("损坏数")&&rs.getObject(i+1)==null){//日结账的损坏数为0时这样读取出来
+					row.createCell(i).setCellValue(0);
+
+				}}
+				if(rs.getObject(i+1)!=null){
+				row.createCell(i).setCellValue(rs.getObject(i+1).toString());}
 			}
 		}
 	}
 	
 	
-	public static String getCell(HSSFCell cell) {
-		DecimalFormat df = new DecimalFormat("#");
-		if (cell == null)
-			return "";
-		switch (cell.getCellType()) {
-		case HSSFCell.CELL_TYPE_NUMERIC:
-			if(HSSFDateUtil.isCellDateFormatted(cell)){
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				return sdf.format(HSSFDateUtil.getJavaDate(cell.getNumericCellValue())).toString();
-			}
-			return df.format(cell.getNumericCellValue());
-		case HSSFCell.CELL_TYPE_STRING:
-			System.out.println(cell.getStringCellValue());
-			return cell.getStringCellValue();
-		case HSSFCell.CELL_TYPE_FORMULA:
-			return cell.getCellFormula();
-		case HSSFCell.CELL_TYPE_BLANK:
-			return "";
-		case HSSFCell.CELL_TYPE_BOOLEAN:
-			return cell.getBooleanCellValue() + "";
-		case HSSFCell.CELL_TYPE_ERROR:
-			return cell.getErrorCellValue() + "";
-		}
-		return "";
-	}
-	/*public static String formateDate(HSSFWorkbook wb,HSSFCell hssfCell){
-		//HSSFWorkbook wb = new HSSFWorkbook();  
-		CreationHelper createHelper=wb.getCreationHelper();
-		HSSFCellStyle cellStyle = wb.createCellStyle();  
-		cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss"));
-		//HSSFSheet sheet = wb.createSheet("format sheet");  
-		//HSSFDataFormat format = wb.createDataFormat();  
-		//HSSFRow row = sheet.createRow(0);  
-		//HSSFCell cell = row.createCell(0);  
-		//cell = row.getCell(2);
-		hssfCell.setCellValue(formatCell(hssfCell));
-		hssfCell.setCellStyle(cellStyle);  
-		return hssfCell.getStringCellValue();
-	}
-*/	
+	
+	
 }
